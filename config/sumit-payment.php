@@ -14,6 +14,7 @@ return [
         'base_url' => env('SUMIT_API_URL', 'https://api.sumit.co.il'),
         'dev_url' => env('SUMIT_DEV_API_URL', 'http://dev.api.sumit.co.il'),
         'timeout' => env('SUMIT_API_TIMEOUT', 180),
+        'ssl_verify' => env('SUMIT_API_SSL_VERIFY', true),
     ],
 
     'credentials' => [

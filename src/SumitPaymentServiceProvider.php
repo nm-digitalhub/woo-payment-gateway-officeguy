@@ -89,5 +89,15 @@ class SumitPaymentServiceProvider extends ServiceProvider
     {
         // Event listeners will be registered here
         // This replaces WooCommerce action/filter hooks
+        
+        $this->app['events']->listen(
+            \NmDigitalHub\SumitPayment\Events\PaymentProcessed::class,
+            \NmDigitalHub\SumitPayment\Listeners\LogPaymentSuccess::class
+        );
+
+        $this->app['events']->listen(
+            \NmDigitalHub\SumitPayment\Events\PaymentFailed::class,
+            \NmDigitalHub\SumitPayment\Listeners\LogPaymentFailure::class
+        );
     }
 }
