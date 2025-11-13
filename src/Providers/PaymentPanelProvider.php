@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Providers;
+namespace NmDigitalhub\WooPaymentGatewayAdmin\Providers;
 
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -18,10 +18,10 @@ class PaymentPanelProvider extends PanelProvider
             ])
             // TODO: Re-enable after fixing Filament v4 property type compatibility
             // See: https://github.com/filamentphp/filament/discussions/...
-            // ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            // ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            // ->discoverResources(in: __DIR__ . '/../Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
+            // ->discoverPages(in: __DIR__ . '/../Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages')
             ->pages([])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: __DIR__ . '/../Filament/Widgets', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Widgets')
             ->widgets([])
             ->middleware([
                 \Illuminate\Cookie\Middleware\EncryptCookies::class,

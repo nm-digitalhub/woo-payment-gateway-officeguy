@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Settings;
+namespace NmDigitalhub\WooPaymentGatewayAdmin\Settings;
 
 use Spatie\LaravelSettings\Settings;
 

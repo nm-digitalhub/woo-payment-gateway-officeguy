@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace NmDigitalhub\WooPaymentGatewayAdmin\Filament\Pages;
 
-use App\Settings\PaymentSettings;
+use NmDigitalhub\WooPaymentGatewayAdmin\Settings\PaymentSettings;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Schemas\Schema;
