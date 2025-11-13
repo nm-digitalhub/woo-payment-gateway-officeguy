@@ -4,8 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Models\Transaction;
+use BackedEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -13,13 +14,13 @@ use Filament\Tables\Table;
 class TransactionResource extends Resource
 {
     protected static ?string $model = Transaction::class;
-    protected static $navigationIcon = 'heroicon-o-credit-card';
-    protected static $navigationLabel = 'Transactions';
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-credit-card';
+    protected static ?string $navigationLabel = 'Transactions';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\TextInput::make('transaction_id')
                     ->label('Transaction ID')
                     ->required()

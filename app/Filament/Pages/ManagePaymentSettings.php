@@ -3,16 +3,17 @@
 namespace App\Filament\Pages;
 
 use App\Settings\PaymentSettings;
+use BackedEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
 
 class ManagePaymentSettings extends Page
 {
-    protected static $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static $navigationLabel = 'Payment Settings';
-    protected static string $view = 'filament.pages.manage-payment-settings';
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static ?string $navigationLabel = 'Payment Settings';
+    protected string $view = 'filament.pages.manage-payment-settings';
     
     public ?array $data = [];
     
@@ -21,10 +22,10 @@ class ManagePaymentSettings extends Page
         $this->form->fill($settings->toArray());
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Forms\Components\Section::make('API Credentials')
                     ->schema([
                         Forms\Components\TextInput::make('company_id')
