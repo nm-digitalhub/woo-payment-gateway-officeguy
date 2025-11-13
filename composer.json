@@ -29,10 +29,7 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": [],
-            "providers": [
-                "NmDigitalhub\\WooPaymentGatewayAdmin\\Providers\\PaymentPanelProvider"
-            ]
+            "dont-discover": []
         }
     },
     "config": {

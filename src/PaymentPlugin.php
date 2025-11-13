@@ -4,7 +4,6 @@ namespace NmDigitalhub\WooPaymentGatewayAdmin;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Filament\Support\Colors\Color;
 
 /**
  * PaymentPlugin - Filament v4 Plugin for Payment Gateway Admin Panel
@@ -32,7 +31,10 @@ class PaymentPlugin implements Plugin
      * Register the plugin with the Filament panel.
      * 
      * This method is called during panel registration and is where we configure
-     * the panel with our resources, pages, widgets, and other settings.
+     * the panel with our resources, pages, and widgets.
+     * 
+     * As a plugin, we do NOT configure panel-level settings like id, path, or middleware.
+     * Those are managed by the host panel. We only register our resources, pages, and widgets.
      * 
      * @param Panel $panel
      * @return void
@@ -40,28 +42,9 @@ class PaymentPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel
-            ->id('payment')
-            ->path('admin/payment')
-            ->colors([
-                'primary' => Color::Amber,
-            ])
-            // TODO: Re-enable after fixing Filament v4 property type compatibility
-            // See: https://github.com/filamentphp/filament/discussions/...
-            // ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
-            // ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages')
-            ->pages([])
-            ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Widgets')
-            ->widgets([])
-            ->middleware([
-                \Illuminate\Cookie\Middleware\EncryptCookies::class,
-                \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-                \Illuminate\Session\Middleware\StartSession::class,
-                \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            ])
-            ->authMiddleware([
-                \Illuminate\Auth\Middleware\Authenticate::class,
-            ]);
+            ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
+            ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages')
+            ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Widgets');
     }
 
     /**
