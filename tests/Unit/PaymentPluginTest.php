@@ -17,7 +17,7 @@ class PaymentPluginTest extends TestCase
     {
         $plugin = new PaymentPlugin();
         
-        $this->assertEquals('payment', $plugin->getId());
+        $this->assertEquals('woo-payment-gateway-admin', $plugin->getId());
     }
 
     public function test_plugin_implements_filament_plugin_interface()
