@@ -50,4 +50,34 @@ class PaymentPluginTest extends TestCase
         $this->assertIsString($plugin->getId());
         $this->assertNotEmpty($plugin->getId());
     }
+
+    public function test_plugin_register_does_not_configure_panel_settings()
+    {
+        $plugin = new PaymentPlugin();
+        
+        // Create a mock panel to verify plugin doesn't set panel-level configuration
+        $panel = $this->createMock(\Filament\Panel::class);
+        
+        // The plugin should NOT call these panel configuration methods
+        $panel->expects($this->never())->method('id');
+        $panel->expects($this->never())->method('path');
+        $panel->expects($this->never())->method('middleware');
+        $panel->expects($this->never())->method('authMiddleware');
+        $panel->expects($this->never())->method('colors');
+        
+        // The plugin SHOULD call discovery methods
+        $panel->expects($this->once())
+            ->method('discoverResources')
+            ->willReturnSelf();
+        
+        $panel->expects($this->once())
+            ->method('discoverPages')
+            ->willReturnSelf();
+        
+        $panel->expects($this->once())
+            ->method('discoverWidgets')
+            ->willReturnSelf();
+        
+        $plugin->register($panel);
+    }
 }
