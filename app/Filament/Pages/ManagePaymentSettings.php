@@ -5,13 +5,21 @@ namespace App\Filament\Pages;
 use App\Settings\PaymentSettings;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Pages\SettingsPage;
+use Filament\Pages\Page;
+use Filament\Actions\Action;
 
-class ManagePaymentSettings extends SettingsPage
+class ManagePaymentSettings extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $navigationLabel = 'Payment Settings';
-    protected static string $settings = PaymentSettings::class;
+    protected static $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static $navigationLabel = 'Payment Settings';
+    protected static string $view = 'filament.pages.manage-payment-settings';
+    
+    public ?array $data = [];
+    
+    public function mount(PaymentSettings $settings): void
+    {
+        $this->form->fill($settings->toArray());
+    }
 
     public function form(Form $form): Form
     {
@@ -79,6 +87,29 @@ class ManagePaymentSettings extends SettingsPage
                             ->required(),
                     ])
                     ->columns(2),
-            ]);
+            ])
+            ->statePath('data');
+    }
+    
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('save')
+                ->label(__('filament-panels::pages/settings-page.form.actions.save.label'))
+                ->submit('save'),
+        ];
+    }
+    
+    public function save(PaymentSettings $settings): void
+    {
+        $data = $this->form->getState();
+        
+        $settings->fill($data);
+        $settings->save();
+        
+        \Filament\Notifications\Notification::make()
+            ->success()
+            ->title(__('filament-panels::pages/settings-page.notifications.saved.title'))
+            ->send();
     }
 }

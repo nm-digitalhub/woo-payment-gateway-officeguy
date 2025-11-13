@@ -11,9 +11,9 @@ use Filament\Tables\Table;
 
 class PaymentTokenResource extends Resource
 {
-    protected static ?string $model = null; // Would be linked to a PaymentToken model
-    protected static ?string $navigationIcon = 'heroicon-o-key';
-    protected static ?string $navigationLabel = 'Payment Tokens';
+    protected static $model = null; // Would be linked to a PaymentToken model
+    protected static $navigationIcon = 'heroicon-o-key';
+    protected static $navigationLabel = 'Payment Tokens';
 
     public static function form(Form $form): Form
     {
