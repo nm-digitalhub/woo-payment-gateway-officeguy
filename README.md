@@ -7,7 +7,7 @@ This repository contains a payment gateway with a modern Laravel-based admin int
 The project is a **Laravel 11/12 package** (library) with optional WooCommerce integration:
 
 1. **Laravel Admin Layer** (Primary - Package)
-   - Modern admin interface using Filament v4
+   - Modern admin interface using Filament v4 **Plugin Architecture**
    - Type-safe settings management using Spatie Laravel Settings
    - Service-oriented architecture
    - Database-driven configuration
@@ -19,6 +19,27 @@ The project is a **Laravel 11/12 package** (library) with optional WooCommerce i
    - Located in: `includes/`, `templates/`, `officeguy-woo.php`
 
 ## Features
+
+### Filament v4 Plugin Architecture
+
+The admin interface is built as a **Filament Panel Plugin**, following best practices from the official Filament v4 documentation:
+
+- **PaymentPlugin** (`src/PaymentPlugin.php`)
+  - Implements `Filament\Contracts\Plugin` interface
+  - Provides `getId()`, `register()`, and `boot()` methods
+  - Registers resources, pages, and widgets with the panel
+  - Can be reused across multiple Filament panels
+
+- **AdminPanelProvider** (`src/Providers/AdminPanelProvider.php`)
+  - Configures the admin panel at `/admin/payment`
+  - Registers the PaymentPlugin using `->plugin()`
+  - Manages panel-level settings (colors, middleware, authentication)
+
+This architecture allows the payment gateway functionality to be:
+- **Reusable**: The plugin can be registered in any Filament panel
+- **Modular**: Clean separation between panel configuration and plugin logic
+- **Extensible**: Easy to add new features or customize per panel
+- **Standards-compliant**: Follows Filament v4 plugin best practices
 
 ### Spatie Laravel Settings Integration
 
@@ -91,7 +112,7 @@ composer require nm-digitalhub/woo-payment-gateway-admin
 
 2. **Publish configuration and migrations:**
 ```bash
-php artisan vendor:publish --provider="NmDigitalhub\WooPaymentGatewayAdmin\Providers\PaymentPanelProvider"
+php artisan vendor:publish --provider="NmDigitalhub\WooPaymentGatewayAdmin\Providers\AdminPanelProvider"
 ```
 
 3. **Run migrations:**
@@ -248,12 +269,23 @@ php artisan test
 ```
 
 Tests cover:
+- PaymentPlugin structure and instantiation
+- Plugin interface compliance
 - PaymentService functionality
 - TokenService operations
 - RefundService processing
 - Settings integration via dependency injection
 
 ## Architecture Decisions
+
+### Why Filament v4 Plugin Architecture?
+
+- **Modularity**: Plugin structure separates concerns cleanly
+- **Reusability**: PaymentPlugin can be registered in any Filament panel
+- **Standards Compliance**: Follows official Filament v4 plugin best practices
+- **Extensibility**: Easy to add features or customize per panel
+- **Maintainability**: Clear separation between panel and plugin logic
+- **Best Practices**: Implements the `Plugin` interface as recommended in Filament docs
 
 ### Why Laravel Package Structure?
 

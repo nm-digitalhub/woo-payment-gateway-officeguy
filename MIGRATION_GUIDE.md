@@ -1,12 +1,74 @@
-# Migration Guide: Filament v3 to v4 & Spatie Settings Integration
+# Migration Guide: Filament v4 Plugin Architecture & Spatie Settings Integration
 
 ## Overview
 
-This document provides a comprehensive guide for the migration to Filament v4 and integration of Spatie Laravel Settings in the WooCommerce Payment Gateway admin layer.
+This document provides a comprehensive guide for the migration to Filament v4 **Plugin Architecture** and integration of Spatie Laravel Settings in the WooCommerce Payment Gateway admin layer.
 
 ## What Changed
 
-### 1. Settings Management
+### 1. Filament Panel Architecture (NEW!)
+
+#### Before (PanelProvider Pattern)
+```php
+// Old approach: PaymentPanelProvider extending PanelProvider
+class PaymentPanelProvider extends PanelProvider
+{
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            ->id('payment')
+            ->path('admin/payment')
+            ->discoverResources(...)
+            ->discoverPages(...);
+    }
+}
+```
+
+#### After (Plugin Pattern - Recommended by Filament v4)
+```php
+// New approach: PaymentPlugin implementing Plugin interface
+class PaymentPlugin implements Plugin
+{
+    public function getId(): string
+    {
+        return 'payment';
+    }
+
+    public function register(Panel $panel): void
+    {
+        $panel
+            ->resources([...])
+            ->pages([...])
+            ->discoverWidgets(...);
+    }
+
+    public function boot(Panel $panel): void
+    {
+        // Plugin boot logic
+    }
+}
+
+// AdminPanelProvider registers the plugin
+class AdminPanelProvider extends PanelProvider
+{
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            ->id('payment')
+            ->path('admin/payment')
+            ->plugin(PaymentPlugin::make());
+    }
+}
+```
+
+**Benefits:**
+- Follows Filament v4 plugin best practices
+- Modular and reusable across multiple panels
+- Clean separation of concerns
+- Easier to test and maintain
+- Standards-compliant with official documentation
+
+### 2. Settings Management
 
 #### Before (WooCommerce Plugin)
 ```php
@@ -39,19 +101,20 @@ class PaymentService {
 - Database-backed: Settings persist in database
 - Versioned: Migration-based approach
 
-### 2. Admin Interface
+### 3. Admin Interface
 
 #### Before (None)
 No Laravel-based admin interface existed.
 
-#### After (Filament v4)
-Complete admin panel with:
-- Transaction management
-- Token management
+#### After (Filament v4 Plugin)
+Complete admin panel with plugin architecture:
+- PaymentPlugin for modular functionality
+- Transaction management (planned)
+- Token management (planned)
 - Settings configuration
 - Modern UI with search, filters, and actions
 
-### 3. Service Architecture
+### 4. Service Architecture
 
 #### Before (Procedural)
 ```php
@@ -76,11 +139,78 @@ class PaymentService {
 }
 ```
 
-## Filament v4 Migration Details
+## Filament v4 Plugin Architecture
+
+### Plugin Structure
+
+**PaymentPlugin Class:**
+```php
+namespace NmDigitalhub\WooPaymentGatewayAdmin;
+
+use Filament\Contracts\Plugin;
+use Filament\Panel;
+
+class PaymentPlugin implements Plugin
+{
+    public function getId(): string
+    {
+        return 'payment';
+    }
+
+    public function register(Panel $panel): void
+    {
+        $panel
+            ->pages([ManagePaymentSettings::class])
+            ->discoverWidgets(...);
+    }
+
+    public function boot(Panel $panel): void
+    {
+        // Boot logic
+    }
+
+    public static function make(): static
+    {
+        return app(static::class);
+    }
+}
+```
+
+**How it works:**
+- Implements `Filament\Contracts\Plugin` interface
+- Provides unique ID via `getId()`
+- Registers resources/pages in `register()` method
+- Boots plugin-specific logic in `boot()` method
+- Can be instantiated via `PaymentPlugin::make()`
 
 ### Panel Configuration
 
-**New in v4:**
+**AdminPanelProvider:**
+```php
+class AdminPanelProvider extends PanelProvider
+{
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            ->id('payment')
+            ->path('admin/payment')
+            ->plugin(PaymentPlugin::make())
+            ->middleware([...]);
+    }
+}
+```
+
+**Key Changes from PanelProvider:**
+- Panel configuration is lightweight
+- Plugin handles resource/page registration
+- Clean separation between panel and plugin
+- Multiple plugins can be registered per panel
+
+## Filament v4 Migration Details
+
+### Panel Configuration (Legacy Documentation)
+
+**Old approach (deprecated):**
 ```php
 // app/Providers/PaymentPanelProvider.php
 public function panel(Panel $panel): Panel
