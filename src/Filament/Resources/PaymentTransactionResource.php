@@ -3,7 +3,9 @@
 namespace NmDigitalHub\SumitPayment\Filament\Resources;
 
 use Filament\Forms;
+use Filament\Forms\Form;
 use Filament\Tables;
+use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use NmDigitalHub\SumitPayment\Models\PaymentTransaction;
 use NmDigitalHub\SumitPayment\Filament\Resources\PaymentTransactionResource\Pages;
@@ -18,7 +20,57 @@ class PaymentTransactionResource extends Resource
 
     protected static ?string $navigationGroup = 'SUMIT Payment';
 
-    public static function table(Tables\Table $table): Tables\Table
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make('Transaction Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('order_id')
+                            ->label('Order ID')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('transaction_id')
+                            ->label('Transaction ID')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('amount')
+                            ->label('Amount')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('currency')
+                            ->label('Currency')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('status')
+                            ->label('Status')
+                            ->disabled(),
+                    ])
+                    ->columns(2),
+                Forms\Components\Section::make('Payment Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('auth_number')
+                            ->label('Auth Number')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('card_last4')
+                            ->label('Card Last 4')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('document_id')
+                            ->label('Document ID')
+                            ->disabled(),
+                        Forms\Components\TextInput::make('customer_id')
+                            ->label('Customer ID')
+                            ->disabled(),
+                    ])
+                    ->columns(2),
+                Forms\Components\Section::make('Error Information')
+                    ->schema([
+                        Forms\Components\Textarea::make('error_message')
+                            ->label('Error Message')
+                            ->disabled()
+                            ->rows(3),
+                    ])
+                    ->visible(fn ($record) => !empty($record->error_message)),
+            ]);
+    }
+
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
@@ -68,56 +120,6 @@ class PaymentTransactionResource extends Resource
                 Tables\Actions\ViewAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
-    }
-
-    public static function form(Forms\Form $form): Forms\Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Transaction Details')
-                    ->schema([
-                        Forms\Components\TextInput::make('order_id')
-                            ->label('Order ID')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('transaction_id')
-                            ->label('Transaction ID')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('amount')
-                            ->label('Amount')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('currency')
-                            ->label('Currency')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('status')
-                            ->label('Status')
-                            ->disabled(),
-                    ])
-                    ->columns(2),
-                Forms\Components\Section::make('Payment Details')
-                    ->schema([
-                        Forms\Components\TextInput::make('auth_number')
-                            ->label('Auth Number')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('card_last4')
-                            ->label('Card Last 4')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('document_id')
-                            ->label('Document ID')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('customer_id')
-                            ->label('Customer ID')
-                            ->disabled(),
-                    ])
-                    ->columns(2),
-                Forms\Components\Section::make('Error Information')
-                    ->schema([
-                        Forms\Components\Textarea::make('error_message')
-                            ->label('Error Message')
-                            ->disabled()
-                            ->rows(3),
-                    ])
-                    ->visible(fn ($record) => !empty($record->error_message)),
-            ]);
     }
 
     public static function getPages(): array

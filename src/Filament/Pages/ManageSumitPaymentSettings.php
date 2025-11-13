@@ -3,8 +3,12 @@
 namespace NmDigitalHub\SumitPayment\Filament\Pages;
 
 use Filament\Forms;
+use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
+use Filament\Notifications\Notification;
+use Filament\Actions\Action;
 use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
+use NmDigitalHub\SumitPayment\Services\ApiService;
 
 class ManageSumitPaymentSettings extends SettingsPage
 {
@@ -18,9 +22,9 @@ class ManageSumitPaymentSettings extends SettingsPage
 
     protected static string $settings = SumitPaymentSettings::class;
 
-    protected function getFormSchema(): array
+    public function form(Form $form): Form
     {
-        return [
+        return $form->schema([
             Forms\Components\Tabs::make('Settings')
                 ->tabs([
                     Forms\Components\Tabs\Tab::make('API Configuration')
@@ -214,45 +218,29 @@ class ManageSumitPaymentSettings extends SettingsPage
                                 ->columns(2),
                         ]),
                 ]),
-        ];
+        ]);
     }
-}
 
-                                'www' => 'Production',
-                                'dev' => 'Development',
-                            ])
-                            ->required(),
-                        Forms\Components\Toggle::make('testing_mode')
-                            ->label('Testing Mode')
-                            ->helperText('Enable to run transactions in test mode'),
-                    ])
-                    ->columns(2),
-
-                Forms\Components\Section::make('Payment Settings')
-                    ->schema([
-                        Forms\Components\TextInput::make('merchant_number')
-                            ->label('Merchant Number'),
-                        Forms\Components\Select::make('pci_mode')
-                            ->label('PCI Mode')
-                            ->options([
-                                'yes' => 'Direct (PCI Compliant)',
-                                'no' => 'Tokenized',
-                                'redirect' => 'Redirect',
-                            ])
-                            ->required(),
-                    ])
-                    ->columns(2),
-            ])
-            ->statePath('data');
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('testCredentials')
+                ->label('Test Credentials')
+                ->action(function () {
+                    $this->testCredentials();
+                }),
+        ];
     }
 
     public function testCredentials(): void
     {
         $apiService = app(ApiService::class);
         
+        $settings = app(SumitPaymentSettings::class);
+        
         $error = $apiService->checkCredentials(
-            $this->data['company_id'] ?? '',
-            $this->data['api_key'] ?? ''
+            $settings->company_id ?? '',
+            $settings->api_key ?? ''
         );
 
         if ($error === null) {
@@ -267,14 +255,5 @@ class ManageSumitPaymentSettings extends SettingsPage
                 ->danger()
                 ->send();
         }
-    }
-
-    protected function getFormActions(): array
-    {
-        return [
-            Forms\Components\Actions\Action::make('testCredentials')
-                ->label('Test Credentials')
-                ->action('testCredentials'),
-        ];
     }
 }
