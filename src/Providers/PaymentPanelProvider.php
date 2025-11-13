@@ -16,11 +16,8 @@ class PaymentPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            // TODO: Re-enable after fixing Filament v4 property type compatibility
-            // See: https://github.com/filamentphp/filament/discussions/...
-            // ->discoverResources(in: __DIR__ . '/../Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
-            // ->discoverPages(in: __DIR__ . '/../Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages')
-            ->pages([])
+            ->discoverResources(in: __DIR__ . '/../Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
+            ->discoverPages(in: __DIR__ . '/../Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages')
             ->discoverWidgets(in: __DIR__ . '/../Filament/Widgets', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Widgets')
             ->widgets([])
             ->middleware([
