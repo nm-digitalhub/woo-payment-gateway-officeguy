@@ -10,7 +10,7 @@ class RefundServiceTest extends TestCase
 {
     public function test_refund_service_processes_refund()
     {
-        $settings = $this->createMock(PaymentSettings::class);
+        $settings = $this->createStub(PaymentSettings::class);
         $settings->api_key = 'test_api_key';
         $settings->secret_key = 'test_secret_key';
 
@@ -25,7 +25,7 @@ class RefundServiceTest extends TestCase
 
     public function test_refund_service_gets_status()
     {
-        $settings = $this->createMock(PaymentSettings::class);
+        $settings = $this->createStub(PaymentSettings::class);
         $service = new RefundService($settings);
 
         $status = $service->getRefundStatus('rfnd_12345');

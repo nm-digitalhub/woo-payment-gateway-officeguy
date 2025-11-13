@@ -10,12 +10,9 @@ class PaymentServiceTest extends TestCase
 {
     public function test_payment_service_uses_settings()
     {
-        // Create mock settings
-        $settings = $this->createMock(PaymentSettings::class);
-        $settings->api_key = 'test_api_key';
-        $settings->secret_key = 'test_secret_key';
+        // Create stub settings
+        $settings = $this->createStub(PaymentSettings::class);
         $settings->sandbox_mode = true;
-        $settings->environment = 'test';
 
         // Create service with settings
         $service = new PaymentService($settings);
@@ -26,9 +23,10 @@ class PaymentServiceTest extends TestCase
 
     public function test_payment_service_processes_charge()
     {
-        $settings = $this->createMock(PaymentSettings::class);
+        $settings = $this->createStub(PaymentSettings::class);
         $settings->api_key = 'test_api_key';
         $settings->secret_key = 'test_secret_key';
+        $settings->environment = 'test';
 
         $service = new PaymentService($settings);
 
