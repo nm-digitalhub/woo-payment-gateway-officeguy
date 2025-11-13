@@ -39,14 +39,11 @@ class PaymentPlugin implements Plugin
      */
     public function register(Panel $panel): void
     {
-        // Register plugin resources, pages, and widgets
+        // Register plugin resources and pages
         // Panel configuration (id, path, colors, middleware) is handled by end-user
-        // TODO: Re-enable after fixing Filament v4 property type compatibility
-        // See: https://github.com/filamentphp/filament/discussions/...
-        // $panel
-        //     ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
-        //     ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages')
-        //     ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Widgets');
+        $panel
+            ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
+            ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages');
     }
 
     /**
