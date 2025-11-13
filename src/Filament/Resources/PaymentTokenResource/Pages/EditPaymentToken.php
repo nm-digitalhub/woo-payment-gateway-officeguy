@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\PaymentTokenResource\Pages;
+namespace NmDigitalhub\WooPaymentGatewayAdmin\Filament\Resources\PaymentTokenResource\Pages;
 
-use App\Filament\Resources\PaymentTokenResource;
+use NmDigitalhub\WooPaymentGatewayAdmin\Filament\Resources\PaymentTokenResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

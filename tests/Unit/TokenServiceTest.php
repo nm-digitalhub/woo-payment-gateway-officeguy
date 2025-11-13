@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Settings\PaymentSettings;
-use App\Services\TokenService;
+use NmDigitalhub\WooPaymentGatewayAdmin\Settings\PaymentSettings;
+use NmDigitalhub\WooPaymentGatewayAdmin\Services\TokenService;
 use PHPUnit\Framework\TestCase;
 
 class TokenServiceTest extends TestCase

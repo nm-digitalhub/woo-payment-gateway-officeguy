@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Settings\PaymentSettings;
-use App\Services\PaymentService;
+use NmDigitalhub\WooPaymentGatewayAdmin\Settings\PaymentSettings;
+use NmDigitalhub\WooPaymentGatewayAdmin\Services\PaymentService;
 use PHPUnit\Framework\TestCase;
 
 class PaymentServiceTest extends TestCase

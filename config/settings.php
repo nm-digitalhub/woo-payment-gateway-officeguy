@@ -8,14 +8,14 @@ return [
          * Each settings class used in your application must be registered, you can
          * put them (plus its migration) here.
          */
-        \App\Settings\PaymentSettings::class,
+        \NmDigitalhub\WooPaymentGatewayAdmin\Settings\PaymentSettings::class,
 
     ],
 
     /*
      * The path where the settings classes will be created.
      */
-    'setting_class_path' => app_path('Settings'),
+    'setting_class_path' => base_path('src/Settings'),
 
     /*
      * In these directories settings migrations will be stored and ran when migrating. A settings
@@ -69,7 +69,7 @@ return [
      * register them.
      */
     'auto_discover_settings' => [
-        app_path('Settings'),
+        base_path('src/Settings'),
     ],
 
     /*

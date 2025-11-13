@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace NmDigitalhub\WooPaymentGatewayAdmin\Filament\Resources;
 
-use App\Filament\Resources\PaymentTokenResource\Pages;
-use App\Models\PaymentToken;
+use NmDigitalhub\WooPaymentGatewayAdmin\Filament\Resources\PaymentTokenResource\Pages;
+use NmDigitalhub\WooPaymentGatewayAdmin\Models\PaymentToken;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Schemas\Schema;

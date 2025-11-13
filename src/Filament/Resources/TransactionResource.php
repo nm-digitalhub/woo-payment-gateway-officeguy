@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace NmDigitalhub\WooPaymentGatewayAdmin\Filament\Resources;
 
-use App\Filament\Resources\TransactionResource\Pages;
-use App\Models\Transaction;
+use NmDigitalhub\WooPaymentGatewayAdmin\Filament\Resources\TransactionResource\Pages;
+use NmDigitalhub\WooPaymentGatewayAdmin\Models\Transaction;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Schemas\Schema;

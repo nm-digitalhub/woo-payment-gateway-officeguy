@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace NmDigitalhub\WooPaymentGatewayAdmin\Services;
 
-use App\Settings\PaymentSettings;
+use NmDigitalhub\WooPaymentGatewayAdmin\Settings\PaymentSettings;
 
 class RefundService
 {

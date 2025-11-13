@@ -4,14 +4,14 @@ This repository contains a payment gateway with a modern Laravel-based admin int
 
 ## Architecture
 
-The project is a **standalone Laravel 11 application** with optional WooCommerce integration:
+The project is a **Laravel 11/12 package** (library) with optional WooCommerce integration:
 
-1. **Laravel Admin Layer** (Primary - NEW)
-   - Modern standalone admin interface using Filament v4
+1. **Laravel Admin Layer** (Primary - Package)
+   - Modern admin interface using Filament v4
    - Type-safe settings management using Spatie Laravel Settings
    - Service-oriented architecture
    - Database-driven configuration
-   - Located in: `app/`, `config/`, `database/`, `resources/`
+   - Located in: `src/`, `config/`, `database/`, `resources/`
 
 2. **WooCommerce Plugin** (Legacy - Optional Integration)
    - Traditional WordPress/WooCommerce payment gateway
@@ -24,7 +24,7 @@ The project is a **standalone Laravel 11 application** with optional WooCommerce
 
 The payment configuration is managed through a centralized, type-safe settings layer:
 
-- **PaymentSettings Class** (`app/Settings/PaymentSettings.php`)
+- **PaymentSettings Class** (`src/Settings/PaymentSettings.php`)
   - API credentials (api_key, secret_key, private_key, public_key)
   - Environment settings (sandbox_mode, environment)
   - Token configuration (support_tokens, token_param)
@@ -37,7 +37,7 @@ The payment configuration is managed through a centralized, type-safe settings l
 
 A complete standalone admin interface for managing the payment gateway:
 
-- **Settings Management** (`app/Filament/Pages/ManagePaymentSettings.php`)
+- **Settings Management** (`src/Filament/Pages/ManagePaymentSettings.php`)
   - Configure API credentials
   - Toggle sandbox mode
   - Manage token settings
@@ -58,17 +58,17 @@ A complete standalone admin interface for managing the payment gateway:
 
 Type-safe service classes that consume PaymentSettings via dependency injection:
 
-- **PaymentService** (`app/Services/PaymentService.php`)
+- **PaymentService** (`src/Services/PaymentService.php`)
   - Process payment charges
   - Check sandbox mode
   - Retrieve webhook URLs
 
-- **TokenService** (`app/Services/TokenService.php`)
+- **TokenService** (`src/Services/TokenService.php`)
   - Store and retrieve payment tokens
   - Check token support status
   - Manage token parameters (J2/J5)
 
-- **RefundService** (`app/Services/RefundService.php`)
+- **RefundService** (`src/Services/RefundService.php`)
   - Process refunds
   - Check refund status
 
@@ -78,10 +78,28 @@ Type-safe service classes that consume PaymentSettings via dependency injection:
 
 - PHP ^8.2
 - Composer
+- Laravel ^11.0 or ^12.0
 - MySQL/PostgreSQL database
 - Web server (Apache/Nginx) or PHP development server
 
-### Standalone Laravel Setup (Recommended)
+### As a Composer Package (Recommended)
+
+1. **Install via Composer:**
+```bash
+composer require nm-digitalhub/woo-payment-gateway-admin
+```
+
+2. **Publish configuration and migrations:**
+```bash
+php artisan vendor:publish --provider="NmDigitalhub\WooPaymentGatewayAdmin\Providers\PaymentPanelProvider"
+```
+
+3. **Run migrations:**
+```bash
+php artisan migrate
+```
+
+### Development Setup (Clone Repository)
 
 1. **Clone the repository:**
 ```bash
@@ -118,7 +136,7 @@ php artisan migrate
 6. **Create an admin user (optional for now):**
 ```bash
 php artisan tinker
->>> $user = new App\Models\User();
+>>> $user = new NmDigitalhub\WooPaymentGatewayAdmin\Models\User();
 >>> $user->name = 'Admin';
 >>> $user->email = 'admin@example.com';
 >>> $user->password = bcrypt('password');
@@ -186,8 +204,8 @@ Unlike traditional config files, payment settings are stored in the database and
 ### Using Settings in Code
 
 ```php
-use App\Settings\PaymentSettings;
-use App\Services\PaymentService;
+use NmDigitalhub\WooPaymentGatewayAdmin\Settings\PaymentSettings;
+use NmDigitalhub\WooPaymentGatewayAdmin\Services\PaymentService;
 
 // Inject settings into services (automatic via Laravel container)
 class MyController
@@ -237,13 +255,14 @@ Tests cover:
 
 ## Architecture Decisions
 
-### Why Standalone Laravel Application?
+### Why Laravel Package Structure?
 
-- **Framework Independence**: Not tied to WordPress/WooCommerce
+- **Reusability**: Can be installed in any Laravel application via Composer
+- **Framework Integration**: Integrates seamlessly with Laravel 11/12
 - **Modern Development**: Use latest Laravel features
 - **Better Testing**: Easy to unit test without WordPress
 - **Flexibility**: Can integrate with any frontend or framework
-- **Performance**: No WordPress overhead for admin operations
+- **Portability**: Not tied to a specific application structure
 
 ### Why Spatie Laravel Settings?
 
@@ -323,14 +342,14 @@ All services automatically use current settings from the database.
 
 ### Adding New Settings
 
-1. Add property to `app/Settings/PaymentSettings.php`
+1. Add property to `src/Settings/PaymentSettings.php`
 2. Create migration in `database/migrations/`
 3. Run migration: `php artisan migrate`
-4. Update admin form in `app/Filament/Pages/ManagePaymentSettings.php`
+4. Update admin form in `src/Filament/Pages/ManagePaymentSettings.php`
 
 ### Adding New Services
 
-1. Create service class in `app/Services/`
+1. Create service class in `src/Services/`
 2. Inject `PaymentSettings` via constructor
 3. Register in service container if needed
 4. Use via dependency injection

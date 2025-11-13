@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Settings\PaymentSettings;
-use App\Services\RefundService;
+use NmDigitalhub\WooPaymentGatewayAdmin\Settings\PaymentSettings;
+use NmDigitalhub\WooPaymentGatewayAdmin\Services\RefundService;
 use PHPUnit\Framework\TestCase;
 
 class RefundServiceTest extends TestCase
