@@ -26,7 +26,7 @@ class TokenController extends Controller
             'exp_month' => 'required_without:single_use_token|integer|min:1|max:12',
             'exp_year' => 'required_without:single_use_token|integer',
             'citizen_id' => 'nullable|string',
-            'single_use_token' => 'required_without_all:card_number,cvv,exp_month,exp_year|string',
+            'single_use_token' => 'required_without:card_number|string',
         ]);
 
         $userId = auth()->id();

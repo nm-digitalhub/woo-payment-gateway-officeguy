@@ -126,6 +126,8 @@ class RecurringBillingService
             case 'yearly':
                 $nextDate->modify('+1 year');
                 break;
+            default:
+                throw new \InvalidArgumentException("Invalid billing frequency: {$billing->frequency}. Expected: daily, weekly, monthly, or yearly.");
         }
 
         return $nextDate;

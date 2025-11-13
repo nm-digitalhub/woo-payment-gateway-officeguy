@@ -65,10 +65,18 @@ class PaymentController extends Controller
         // This would typically update order status and redirect to thank you page
         
         if ($success === 'true') {
-            return redirect()->route('payment.success', ['order_id' => $orderId]);
+            return response()->json([
+                'success' => true,
+                'order_id' => $orderId,
+                'message' => 'Payment completed successfully',
+            ]);
         }
 
-        return redirect()->route('payment.failed', ['order_id' => $orderId]);
+        return response()->json([
+            'success' => false,
+            'order_id' => $orderId,
+            'message' => 'Payment failed',
+        ], 400);
     }
 
     /**

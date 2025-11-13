@@ -104,7 +104,7 @@ class ApiService
             return 'No response from server';
         }
 
-        if ($response['Status'] === 'Success') {
+        if ($response['Status'] == 0) {
             return null; // No error
         }
 
@@ -134,7 +134,7 @@ class ApiService
             return 'No response from server';
         }
 
-        if ($response['Status'] === 'Success') {
+        if ($response['Status'] == 0) {
             return null; // No error
         }
 
@@ -148,14 +148,22 @@ class ApiService
     {
         $requestLog = $request;
         
-        // Sanitize sensitive data
+        // Sanitize sensitive data only if they exist
         if (isset($requestLog['PaymentMethod'])) {
-            $requestLog['PaymentMethod']['CreditCard_Number'] = '****';
-            $requestLog['PaymentMethod']['CreditCard_CVV'] = '***';
+            if (isset($requestLog['PaymentMethod']['CreditCard_Number'])) {
+                $requestLog['PaymentMethod']['CreditCard_Number'] = '****';
+            }
+            if (isset($requestLog['PaymentMethod']['CreditCard_CVV'])) {
+                $requestLog['PaymentMethod']['CreditCard_CVV'] = '***';
+            }
         }
         
-        $requestLog['CardNumber'] = '****';
-        $requestLog['CVV'] = '***';
+        if (isset($requestLog['CardNumber'])) {
+            $requestLog['CardNumber'] = '****';
+        }
+        if (isset($requestLog['CVV'])) {
+            $requestLog['CVV'] = '***';
+        }
 
         $this->writeToLog("Request to {$url}: " . json_encode($requestLog, JSON_PRETTY_PRINT), 'debug');
     }

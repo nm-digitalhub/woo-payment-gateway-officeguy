@@ -26,6 +26,8 @@ return new class extends Migration
             $table->timestamp('ended_at')->nullable();
             $table->timestamps();
 
+            // Foreign key to payment token - set to null on delete to preserve billing history
+            // This allows us to maintain subscription records even after a payment method is removed
             $table->foreign('payment_token_id')
                   ->references('id')
                   ->on('sumit_payment_tokens')

@@ -317,8 +317,14 @@ class PaymentService
             $expMonth = (int) ($paymentData['exp_month'] ?? 0);
             $expYear = (int) ($paymentData['exp_year'] ?? 0);
 
-            if ($expMonth < 1 || $expMonth > 12 || $expYear < $currentYear || $expYear > $currentYear + 20) {
-                $errors[] = 'Card expiration date is invalid';
+            if ($expMonth < 1 || $expMonth > 12) {
+                $errors[] = 'Card expiration month is invalid (must be between 1 and 12)';
+            }
+            
+            if ($expYear < $currentYear) {
+                $errors[] = 'Card expiration year cannot be in the past';
+            } elseif ($expYear > $currentYear + 20) {
+                $errors[] = 'Card expiration year is too far in the future';
             }
         } elseif ($pciMode === 'no') {
             // Validate single-use token

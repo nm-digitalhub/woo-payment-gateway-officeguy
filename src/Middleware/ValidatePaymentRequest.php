@@ -25,7 +25,7 @@ class ValidatePaymentRequest
             return response()->json([
                 'success' => false,
                 'error' => 'Payment gateway is not properly configured',
-            ], 500);
+            ], 503);
         }
 
         // Validate request has required fields
