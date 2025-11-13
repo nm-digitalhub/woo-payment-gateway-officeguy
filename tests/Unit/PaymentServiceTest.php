@@ -56,6 +56,7 @@ class PaymentServiceTest extends TestCase
         $settings = $this->createMock(\App\Settings\PaymentSettings::class);
         $settings->api_key = 'test_api_key';
         $settings->secret_key = 'test_secret_key';
+        $settings->environment = 'test';
 
         $service = new \App\Services\PaymentService($settings);
 
