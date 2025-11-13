@@ -41,8 +41,15 @@ A complete standalone admin interface for managing the payment gateway, implemen
   - Implements `Filament\Contracts\Plugin` interface
   - Clean separation of concerns
   - Follows Filament v4 plugin design patterns
-  - Registered via `PaymentPlugin::make()` factory method
+  - Registered manually via `->plugin(PaymentPlugin::make())` in your panel provider
+  - Provides resources, pages, and widgets without imposing panel configuration
   - See: [Filament Plugin Documentation](https://filamentphp.com/docs/4.x/plugins/getting-started)
+
+- **Service Provider** (`src/Providers/PaymentServiceProvider.php`)
+  - Standard Laravel service provider for package setup
+  - Auto-discovered by Laravel
+  - Handles migrations, views, and configuration publishing
+  - No redundant panel configuration
 
 - **Settings Management** (`src/Filament/Pages/ManagePaymentSettings.php`)
   - Configure API credentials
@@ -96,17 +103,43 @@ Type-safe service classes that consume PaymentSettings via dependency injection:
 composer require nm-digitalhub/woo-payment-gateway-admin
 ```
 
-2. **Publish configuration and migrations:**
-```bash
-php artisan vendor:publish --provider="NmDigitalhub\WooPaymentGatewayAdmin\Providers\PaymentPanelProvider"
+2. **Register the plugin in your Filament panel provider:**
+
+In your application's panel provider (e.g., `app/Providers/Filament/AdminPanelProvider.php`), add the PaymentPlugin:
+
+```php
+use NmDigitalhub\WooPaymentGatewayAdmin\PaymentPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        // ... your existing panel configuration
+        ->plugin(PaymentPlugin::make());
+}
 ```
 
-3. **Run migrations:**
+3. **Publish configuration and migrations (optional):**
+```bash
+# Publish configuration
+php artisan vendor:publish --tag="payment-gateway-config"
+
+# Publish migrations (if you want to customize them)
+php artisan vendor:publish --tag="payment-gateway-migrations"
+
+# Publish views (if you want to customize them)
+php artisan vendor:publish --tag="payment-gateway-views"
+```
+
+4. **Run migrations:**
 ```bash
 php artisan migrate
 ```
 
+**Note:** The package uses Laravel's auto-discovery feature, so the `PaymentServiceProvider` will be automatically registered. You only need to manually register the `PaymentPlugin` in your Filament panel provider as shown above.
+
 ### Development Setup (Clone Repository)
+
+For development purposes, if you're working directly with this repository:
 
 1. **Clone the repository:**
 ```bash
@@ -150,15 +183,32 @@ php artisan tinker
 >>> $user->save();
 ```
 
-7. **Serve the application:**
+7. **Set up Filament panel (if not already configured):**
+
+Create or update a panel provider to register the payment plugin. The repository includes bootstrap files, but for a standalone Laravel app, you would add:
+
+```php
+use NmDigitalhub\WooPaymentGatewayAdmin\PaymentPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->id('admin')
+        ->path('admin')
+        ->plugin(PaymentPlugin::make());
+}
+```
+
+8. **Serve the application:**
 ```bash
 php artisan serve
 ```
 
-8. **Access the admin panel:**
+9. **Access the admin panel:**
 ```
-http://localhost:8000/admin/payment
+http://localhost:8000/admin
 ```
+(The exact path depends on your panel configuration)
 
 ### WordPress/WooCommerce Integration (Optional)
 
@@ -291,11 +341,14 @@ Tests cover:
 ### Why Filament v4 Plugin Architecture?
 
 - **Best Practices**: Follows official Filament v4 plugin patterns
-- **Modularity**: Clean separation between provider and plugin logic
+- **Portability**: Plugin can be integrated into any Filament panel without requiring panel-specific configuration
+- **Modularity**: Clean separation between package setup (ServiceProvider) and plugin resources
+- **Flexibility**: End-users control panel configuration (path, colors, middleware) in their own panel provider
 - **Reusability**: Plugin can be registered in multiple panels if needed
 - **Maintainability**: Clear structure makes code easier to understand and maintain
-- **Standards Compliance**: Aligns with Filament documentation and community standards
+- **Standards Compliance**: Aligns with Filament documentation and Laravel package development standards
 - **Future-Proof**: Compatible with future Filament updates and patterns
+- **No Conflicts**: Package doesn't impose panel configuration, preventing conflicts with end-user setup
 
 ### Service Layer Pattern
 

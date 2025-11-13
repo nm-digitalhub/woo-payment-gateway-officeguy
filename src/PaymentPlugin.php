@@ -4,7 +4,6 @@ namespace NmDigitalhub\WooPaymentGatewayAdmin;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Filament\Support\Colors\Color;
 
 /**
  * PaymentPlugin - Filament v4 Plugin for Payment Gateway Admin Panel
@@ -31,37 +30,23 @@ class PaymentPlugin implements Plugin
     /**
      * Register the plugin with the Filament panel.
      * 
-     * This method is called during panel registration and is where we configure
-     * the panel with our resources, pages, widgets, and other settings.
+     * This method registers plugin-specific resources, pages, and widgets
+     * with the panel. Panel-level configuration (id, path, colors, middleware)
+     * should be handled by the end-user's panel provider.
      * 
      * @param Panel $panel
      * @return void
      */
     public function register(Panel $panel): void
     {
-        $panel
-            ->id('payment')
-            ->path('admin/payment')
-            ->colors([
-                'primary' => Color::Amber,
-            ])
-            // TODO: Re-enable after fixing Filament v4 property type compatibility
-            // See: https://github.com/filamentphp/filament/discussions/...
-            // ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
-            // ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages')
-            ->pages([])
-            ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Widgets')
-            ->widgets([])
-            ->middleware([
-                \Illuminate\Cookie\Middleware\EncryptCookies::class,
-                \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-                \Illuminate\Session\Middleware\StartSession::class,
-                \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            ])
-            ->authMiddleware([
-                \Illuminate\Auth\Middleware\Authenticate::class,
-            ]);
+        // Register plugin resources, pages, and widgets
+        // Panel configuration (id, path, colors, middleware) is handled by end-user
+        // TODO: Re-enable after fixing Filament v4 property type compatibility
+        // See: https://github.com/filamentphp/filament/discussions/...
+        // $panel
+        //     ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
+        //     ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages')
+        //     ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Widgets');
     }
 
     /**
