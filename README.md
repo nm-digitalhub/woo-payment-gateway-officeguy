@@ -35,7 +35,14 @@ The payment configuration is managed through a centralized, type-safe settings l
 
 ### Filament v4 Admin Panel
 
-A complete standalone admin interface for managing the payment gateway:
+A complete standalone admin interface for managing the payment gateway, implemented as a Filament v4 Plugin following best practices:
+
+- **Plugin Architecture** (`src/PaymentPlugin.php`)
+  - Implements `Filament\Contracts\Plugin` interface
+  - Clean separation of concerns
+  - Follows Filament v4 plugin design patterns
+  - Registered via `PaymentPlugin::make()` factory method
+  - See: [Filament Plugin Documentation](https://filamentphp.com/docs/4.x/plugins/getting-started)
 
 - **Settings Management** (`src/Filament/Pages/ManagePaymentSettings.php`)
   - Configure API credentials
@@ -280,6 +287,15 @@ Tests cover:
 - **Resource Based**: Easy to create CRUD interfaces
 - **Extensible**: Easy to customize
 - **Active Development**: Regular updates
+
+### Why Filament v4 Plugin Architecture?
+
+- **Best Practices**: Follows official Filament v4 plugin patterns
+- **Modularity**: Clean separation between provider and plugin logic
+- **Reusability**: Plugin can be registered in multiple panels if needed
+- **Maintainability**: Clear structure makes code easier to understand and maintain
+- **Standards Compliance**: Aligns with Filament documentation and community standards
+- **Future-Proof**: Compatible with future Filament updates and patterns
 
 ### Service Layer Pattern
 
