@@ -6,6 +6,14 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 
+/**
+ * @deprecated This class is deprecated as of the plugin refactoring.
+ * Use AdminPanelProvider with PaymentPlugin instead.
+ * This file is kept for backward compatibility but should not be used in new implementations.
+ * 
+ * @see AdminPanelProvider
+ * @see \NmDigitalhub\WooPaymentGatewayAdmin\PaymentPlugin
+ */
 class PaymentPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel

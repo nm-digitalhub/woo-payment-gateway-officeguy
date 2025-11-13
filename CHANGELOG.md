@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.1.0] - 2024-01-15
+
+### Changed - Plugin Architecture Refactoring
+
+This release refactors the admin layer to follow Filament v4 plugin best practices.
+
+#### Filament Plugin Architecture
+- **NEW: PaymentPlugin** (`src/PaymentPlugin.php`)
+  - Implements `Filament\Contracts\Plugin` interface
+  - Provides modular, reusable plugin structure
+  - Registers resources, pages, and widgets
+  - Follows official Filament v4 plugin documentation
+  - Can be registered in any Filament panel
+
+- **NEW: AdminPanelProvider** (`src/Providers/AdminPanelProvider.php`)
+  - Replaces PaymentPanelProvider with plugin-based approach
+  - Lightweight panel configuration
+  - Registers PaymentPlugin via `->plugin()` method
+  - Maintains same URL path (`/admin/payment`)
+
+- **NEW: PaymentPluginServiceProvider** (`src/Providers/PaymentPluginServiceProvider.php`)
+  - Extends Spatie's PackageServiceProvider
+  - Handles asset registration in `packageBooted()` method
+  - Follows Laravel package development best practices
+
+#### Testing
+- **NEW: PaymentPluginTest** (`tests/Unit/PaymentPluginTest.php`)
+  - 6 new test methods for plugin structure
+  - Tests plugin ID, instantiation, and interface compliance
+  - Validates register() and boot() methods
+  - All 12 tests passing (6 plugin + 6 service tests)
+
+#### Documentation Updates
+- Updated README.md with Plugin Architecture section
+- Updated MIGRATION_GUIDE.md with plugin migration instructions
+- Added deprecation notice to PaymentPanelProvider
+- Updated installation instructions to reference AdminPanelProvider
+
+### Deprecated
+- **PaymentPanelProvider** - Deprecated in favor of AdminPanelProvider + PaymentPlugin
+  - File kept for backward compatibility
+  - Should not be used in new implementations
+
+### Migration Path
+For existing installations, update `bootstrap/app.php` and `composer.json` to reference:
+```php
+NmDigitalhub\WooPaymentGatewayAdmin\Providers\AdminPanelProvider::class
+```
+
+See MIGRATION_GUIDE.md for detailed migration instructions.
+
 ## [4.0.0] - 2024-01-01
 
 ### Added - Laravel Admin Layer
