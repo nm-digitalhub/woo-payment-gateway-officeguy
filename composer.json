@@ -1,7 +1,7 @@
 {
-    "name": "nm-digitalhub/laravel-sumit-paymentfi",
-    "description": "Laravel package for SUMIT Payment Gateway integration with Filament V4 Admin Panels",
-    "type": "library",
+    "name": "nm-digitalhub/woo-payment-gateway-officeguy",
+    "description": "WooCommerce Payment Gateway with Laravel admin interface and package support",
+    "type": "project",
     "license": "MIT",
     "keywords": [
         "laravel",
@@ -9,6 +9,7 @@
         "gateway",
         "sumit",
         "filament",
+        "woocommerce",
         "creditcard",
         "israeli-clearing"
     ],
@@ -20,6 +21,7 @@
     ],
     "require": {
         "php": "^8.1|^8.2|^8.3",
+        "laravel/framework": "^10.0|^11.0",
         "illuminate/support": "^10.0|^11.0",
         "illuminate/database": "^10.0|^11.0",
         "illuminate/events": "^10.0|^11.0",
@@ -30,23 +32,46 @@
     "require-dev": {
         "orchestra/testbench": "^8.0|^9.0",
         "phpunit/phpunit": "^10.0|^11.0",
-        "mockery/mockery": "^1.5"
+        "mockery/mockery": "^1.5",
+        "nunomaduro/collision": "^7.0"
     },
     "autoload": {
         "psr-4": {
-            "NmDigitalHub\\SumitPayment\\": "src/"
+            "App\\": "app/",
+            "NmDigitalHub\\SumitPayment\\": "src/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {
         "psr-4": {
+            "Tests\\": "tests/",
             "NmDigitalHub\\SumitPayment\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "test": [
+            "vendor/bin/phpunit"
+        ]
     },
     "extra": {
         "laravel": {
             "providers": [
                 "NmDigitalHub\\SumitPayment\\SumitPaymentServiceProvider"
             ]
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
         }
     },
     "minimum-stability": "stable",
