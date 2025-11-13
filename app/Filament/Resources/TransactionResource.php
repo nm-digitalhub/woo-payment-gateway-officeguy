@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\TransactionResource\Pages;
+use App\Models\Transaction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,9 +12,9 @@ use Filament\Tables\Table;
 
 class TransactionResource extends Resource
 {
-    protected static ?string $model = null; // Would be linked to a Transaction model
-    protected static ?string $navigationIcon = 'heroicon-o-credit-card';
-    protected static ?string $navigationLabel = 'Transactions';
+    protected static ?string $model = Transaction::class;
+    protected static $navigationIcon = 'heroicon-o-credit-card';
+    protected static $navigationLabel = 'Transactions';
 
     public static function form(Form $form): Form
     {

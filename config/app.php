@@ -40,7 +40,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     /*
     |--------------------------------------------------------------------------
@@ -48,9 +48,11 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'locale' => 'en',
-    'fallback_locale' => 'en',
-    'faker_locale' => 'en_US',
+    'locale' => env('APP_LOCALE', 'en'),
+
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+
+    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*
     |--------------------------------------------------------------------------
@@ -59,16 +61,18 @@ return [
     */
 
     'key' => env('APP_KEY'),
+
     'cipher' => 'AES-256-CBC',
 
     /*
     |--------------------------------------------------------------------------
-    | Autoloaded Service Providers
+    | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     */
 
-    'providers' => [
-        App\Providers\PaymentPanelProvider::class,
+    'maintenance' => [
+        'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
+        'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
 ];
