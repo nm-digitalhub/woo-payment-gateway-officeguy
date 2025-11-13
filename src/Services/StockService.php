@@ -2,15 +2,17 @@
 
 namespace NmDigitalHub\SumitPayment\Services;
 
-use Illuminate\Support\Facades\Config;
+use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
 
 class StockService
 {
     protected ApiService $apiService;
+    protected SumitPaymentSettings $settings;
 
-    public function __construct(ApiService $apiService)
+    public function __construct(ApiService $apiService, SumitPaymentSettings $settings)
     {
         $this->apiService = $apiService;
+        $this->settings = $settings;
     }
 
     /**
@@ -18,7 +20,7 @@ class StockService
      */
     public function syncStock(array $products): array
     {
-        if (!Config::get('sumit-payment.stock.sync_enabled', false)) {
+        if (!$this->settings->stock_sync_enabled) {
             return [
                 'success' => false,
                 'error' => 'Stock sync is disabled',
@@ -27,8 +29,8 @@ class StockService
 
         $request = [
             'Credentials' => [
-                'CompanyID' => Config::get('sumit-payment.credentials.company_id'),
-                'APIKey' => Config::get('sumit-payment.credentials.api_key'),
+                'CompanyID' => $this->settings->company_id,
+                'APIKey' => $this->settings->api_key,
             ],
             'Products' => $this->prepareProductsForSync($products),
         ];
@@ -80,8 +82,8 @@ class StockService
     {
         $request = [
             'Credentials' => [
-                'CompanyID' => Config::get('sumit-payment.credentials.company_id'),
-                'APIKey' => Config::get('sumit-payment.credentials.api_key'),
+                'CompanyID' => $this->settings->company_id,
+                'APIKey' => $this->settings->api_key,
             ],
             'ProductID' => $productId,
             'Quantity' => -$quantity, // Negative for deduction
@@ -116,8 +118,8 @@ class StockService
     {
         $request = [
             'Credentials' => [
-                'CompanyID' => Config::get('sumit-payment.credentials.company_id'),
-                'APIKey' => Config::get('sumit-payment.credentials.api_key'),
+                'CompanyID' => $this->settings->company_id,
+                'APIKey' => $this->settings->api_key,
             ],
             'ProductID' => $productId,
         ];

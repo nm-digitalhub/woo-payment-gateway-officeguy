@@ -10,6 +10,7 @@ use NmDigitalHub\SumitPayment\Services\RecurringBillingService;
 use NmDigitalHub\SumitPayment\Services\StockService;
 use NmDigitalHub\SumitPayment\Services\DonationService;
 use NmDigitalHub\SumitPayment\Services\MarketplaceService;
+use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
 
 class SumitPaymentServiceProvider extends ServiceProvider
 {
@@ -18,39 +19,57 @@ class SumitPaymentServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Merge package configuration
+        // Merge package configuration (keep for backwards compatibility)
         $this->mergeConfigFrom(
             __DIR__.'/../config/sumit-payment.php',
             'sumit-payment'
         );
 
-        // Register services as singletons
+        // Register Settings as singleton
+        $this->app->singleton(SumitPaymentSettings::class);
+
+        // Register services as singletons with Settings injection
         $this->app->singleton(ApiService::class, function ($app) {
-            return new ApiService();
+            return new ApiService($app->make(SumitPaymentSettings::class));
         });
 
         $this->app->singleton(PaymentService::class, function ($app) {
-            return new PaymentService($app->make(ApiService::class));
+            return new PaymentService(
+                $app->make(ApiService::class),
+                $app->make(SumitPaymentSettings::class)
+            );
         });
 
         $this->app->singleton(TokenService::class, function ($app) {
-            return new TokenService($app->make(ApiService::class));
+            return new TokenService(
+                $app->make(ApiService::class),
+                $app->make(SumitPaymentSettings::class)
+            );
         });
 
         $this->app->singleton(RecurringBillingService::class, function ($app) {
-            return new RecurringBillingService($app->make(ApiService::class));
+            return new RecurringBillingService(
+                $app->make(ApiService::class),
+                $app->make(SumitPaymentSettings::class)
+            );
         });
 
         $this->app->singleton(StockService::class, function ($app) {
-            return new StockService($app->make(ApiService::class));
+            return new StockService(
+                $app->make(ApiService::class),
+                $app->make(SumitPaymentSettings::class)
+            );
         });
 
         $this->app->singleton(DonationService::class, function ($app) {
-            return new DonationService();
+            return new DonationService($app->make(SumitPaymentSettings::class));
         });
 
         $this->app->singleton(MarketplaceService::class, function ($app) {
-            return new MarketplaceService($app->make(ApiService::class));
+            return new MarketplaceService(
+                $app->make(ApiService::class),
+                $app->make(SumitPaymentSettings::class)
+            );
         });
     }
 

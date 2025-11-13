@@ -3,15 +3,17 @@
 namespace NmDigitalHub\SumitPayment\Services;
 
 use NmDigitalHub\SumitPayment\Models\PaymentToken;
-use Illuminate\Support\Facades\Config;
+use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
 
 class TokenService
 {
     protected ApiService $apiService;
+    protected SumitPaymentSettings $settings;
 
-    public function __construct(ApiService $apiService)
+    public function __construct(ApiService $apiService, SumitPaymentSettings $settings)
     {
         $this->apiService = $apiService;
+        $this->settings = $settings;
     }
 
     /**
@@ -51,15 +53,15 @@ class TokenService
     protected function buildTokenRequest(array $cardData): array
     {
         $request = [
-            'ParamJ' => Config::get('sumit-payment.payment.token_param', 'J2'),
+            'ParamJ' => $this->settings->token_param,
             'Amount' => 1,
             'Credentials' => [
-                'CompanyID' => Config::get('sumit-payment.credentials.company_id'),
-                'APIKey' => Config::get('sumit-payment.credentials.api_key'),
+                'CompanyID' => $this->settings->company_id,
+                'APIKey' => $this->settings->api_key,
             ],
         ];
 
-        $pciMode = Config::get('sumit-payment.payment.pci_mode');
+        $pciMode = $this->settings->pci_mode;
 
         if ($pciMode === 'yes') {
             $request['CardNumber'] = $cardData['card_number'] ?? '';
@@ -172,7 +174,7 @@ class TokenService
     {
         $errors = [];
 
-        $pciMode = Config::get('sumit-payment.payment.pci_mode');
+        $pciMode = $this->settings->pci_mode;
 
         if ($pciMode === 'yes') {
             if (empty($cardData['card_number']) || !ctype_digit($cardData['card_number'])) {

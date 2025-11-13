@@ -2,15 +2,17 @@
 
 namespace NmDigitalHub\SumitPayment\Services;
 
-use Illuminate\Support\Facades\Config;
+use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
 
 class MarketplaceService
 {
     protected ApiService $apiService;
+    protected SumitPaymentSettings $settings;
 
-    public function __construct(ApiService $apiService)
+    public function __construct(ApiService $apiService, SumitPaymentSettings $settings)
     {
         $this->apiService = $apiService;
+        $this->settings = $settings;
     }
 
     /**
@@ -83,7 +85,7 @@ class MarketplaceService
      */
     public function isDokanEnabled(): bool
     {
-        return Config::get('sumit-payment.marketplace.dokan_enabled', false);
+        return $this->settings->marketplace_dokan_enabled;
     }
 
     /**
@@ -91,7 +93,7 @@ class MarketplaceService
      */
     public function isWCFMEnabled(): bool
     {
-        return Config::get('sumit-payment.marketplace.wcfm_enabled', false);
+        return $this->settings->marketplace_wcfm_enabled;
     }
 
     /**
@@ -99,7 +101,7 @@ class MarketplaceService
      */
     public function isWCVendorsEnabled(): bool
     {
-        return Config::get('sumit-payment.marketplace.wcvendors_enabled', false);
+        return $this->settings->marketplace_wcvendors_enabled;
     }
 
     /**

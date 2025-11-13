@@ -2,10 +2,16 @@
 
 namespace NmDigitalHub\SumitPayment\Services;
 
-use Illuminate\Support\Facades\Config;
+use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
 
 class DonationService
 {
+    protected SumitPaymentSettings $settings;
+
+    public function __construct(SumitPaymentSettings $settings)
+    {
+        $this->settings = $settings;
+    }
     /**
      * Check if an order contains donation items
      */
@@ -86,6 +92,6 @@ class DonationService
      */
     public function isEnabled(): bool
     {
-        return Config::get('sumit-payment.donations.enabled', false);
+        return $this->settings->donations_enabled;
     }
 }

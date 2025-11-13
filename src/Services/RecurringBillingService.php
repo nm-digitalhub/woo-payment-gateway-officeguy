@@ -4,15 +4,17 @@ namespace NmDigitalHub\SumitPayment\Services;
 
 use NmDigitalHub\SumitPayment\Models\RecurringBilling;
 use NmDigitalHub\SumitPayment\Models\PaymentToken;
-use Illuminate\Support\Facades\Config;
+use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
 
 class RecurringBillingService
 {
     protected ApiService $apiService;
+    protected SumitPaymentSettings $settings;
 
-    public function __construct(ApiService $apiService)
+    public function __construct(ApiService $apiService, SumitPaymentSettings $settings)
     {
         $this->apiService = $apiService;
+        $this->settings = $settings;
     }
 
     /**
@@ -25,7 +27,7 @@ class RecurringBillingService
         $response = $this->apiService->post(
             $request,
             '/creditguy/gateway/transaction/',
-            Config::get('sumit-payment.payment.send_client_ip', false)
+            $this->settings->send_client_ip
         );
 
         if ($response === null) {
@@ -60,8 +62,8 @@ class RecurringBillingService
     {
         return [
             'Credentials' => [
-                'CompanyID' => Config::get('sumit-payment.credentials.company_id'),
-                'APIKey' => Config::get('sumit-payment.credentials.api_key'),
+                'CompanyID' => $this->settings->company_id,
+                'APIKey' => $this->settings->api_key,
             ],
             'Items' => $this->prepareItems($billing),
             'VATIncluded' => 'true',
@@ -71,10 +73,10 @@ class RecurringBillingService
                 'Token' => $token->token,
             ],
             'Payments_Count' => '1',
-            'SendDocumentByEmail' => Config::get('sumit-payment.payment.email_document') ? 'true' : 'false',
+            'SendDocumentByEmail' => $this->settings->email_document ? 'true' : 'false',
             'UpdateCustomerByEmail' => 'true',
             'DocumentDescription' => "Recurring payment for subscription #{$billing->id}",
-            'MerchantNumber' => Config::get('sumit-payment.payment.subscription_merchant_number'),
+            'MerchantNumber' => $this->settings->subscription_merchant_number,
         ];
     }
 

@@ -4,18 +4,24 @@ namespace NmDigitalHub\SumitPayment\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
+use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
 
 class ValidatePaymentRequest
 {
+    protected SumitPaymentSettings $settings;
+
+    public function __construct(SumitPaymentSettings $settings)
+    {
+        $this->settings = $settings;
+    }
+
     /**
      * Handle an incoming request.
      */
     public function handle(Request $request, Closure $next)
     {
         // Validate that API credentials are configured
-        if (empty(Config::get('sumit-payment.credentials.company_id')) || 
-            empty(Config::get('sumit-payment.credentials.api_key'))) {
+        if (empty($this->settings->company_id) || empty($this->settings->api_key)) {
             return response()->json([
                 'success' => false,
                 'error' => 'Payment gateway is not properly configured',

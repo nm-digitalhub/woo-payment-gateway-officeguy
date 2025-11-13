@@ -5,37 +5,39 @@ namespace NmDigitalHub\SumitPayment\Services;
 use NmDigitalHub\SumitPayment\Models\PaymentTransaction;
 use NmDigitalHub\SumitPayment\Events\PaymentProcessed;
 use NmDigitalHub\SumitPayment\Events\PaymentFailed;
-use Illuminate\Support\Facades\Config;
+use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
 use Illuminate\Support\Facades\Event;
 
 class PaymentService
 {
     protected ApiService $apiService;
+    protected SumitPaymentSettings $settings;
 
-    public function __construct(ApiService $apiService)
+    public function __construct(ApiService $apiService, SumitPaymentSettings $settings)
     {
         $this->apiService = $apiService;
+        $this->settings = $settings;
     }
 
     /**
-     * Get API credentials from config
+     * Get API credentials from settings
      */
     public function getCredentials(): array
     {
         return [
-            'CompanyID' => Config::get('sumit-payment.credentials.company_id'),
-            'APIKey' => Config::get('sumit-payment.credentials.api_key'),
+            'CompanyID' => $this->settings->company_id,
+            'APIKey' => $this->settings->api_key,
         ];
     }
 
     /**
-     * Get public API credentials from config
+     * Get public API credentials from settings
      */
     public function getPublicCredentials(): array
     {
         return [
-            'CompanyID' => Config::get('sumit-payment.credentials.company_id'),
-            'APIPublicKey' => Config::get('sumit-payment.credentials.api_public_key'),
+            'CompanyID' => $this->settings->company_id,
+            'APIPublicKey' => $this->settings->api_public_key,
         ];
     }
 
@@ -49,7 +51,7 @@ class PaymentService
         $response = $this->apiService->post(
             $request,
             '/creditguy/gateway/transaction/',
-            Config::get('sumit-payment.payment.send_client_ip', true)
+            $this->settings->send_client_ip
         );
 
         if ($response === null) {
@@ -97,18 +99,18 @@ class PaymentService
             'VATIncluded' => 'true',
             'VATRate' => $orderData['vat_rate'] ?? 0,
             'Customer' => $this->prepareCustomer($orderData['customer'] ?? []),
-            'AuthoriseOnly' => Config::get('sumit-payment.payment.testing_mode') ? 'true' : 'false',
-            'DraftDocument' => Config::get('sumit-payment.payment.draft_document') ? 'true' : 'false',
-            'SendDocumentByEmail' => Config::get('sumit-payment.payment.email_document') ? 'true' : 'false',
+            'AuthoriseOnly' => $this->settings->testing_mode ? 'true' : 'false',
+            'DraftDocument' => $this->settings->draft_document ? 'true' : 'false',
+            'SendDocumentByEmail' => $this->settings->email_document ? 'true' : 'false',
             'DocumentDescription' => $orderData['description'] ?? '',
             'Payments_Count' => (string) $paymentsCount,
             'MaximumPayments' => $this->getMaximumPayments($orderData['total'] ?? 0),
             'DocumentLanguage' => $this->getDocumentLanguage(),
-            'MerchantNumber' => Config::get('sumit-payment.payment.merchant_number'),
+            'MerchantNumber' => $this->settings->merchant_number,
         ];
 
         // Add authorization settings if enabled
-        if (Config::get('sumit-payment.payment.authorize_only')) {
+        if ($this->settings->authorize_only) {
             $request['AutoCapture'] = 'false';
             $request['AuthorizeAmount'] = $this->calculateAuthorizeAmount($orderData['total'] ?? 0);
         }
@@ -123,7 +125,7 @@ class PaymentService
         }
 
         // Add redirect URL if using redirect flow
-        if (Config::get('sumit-payment.payment.pci_mode') === 'redirect' && isset($orderData['redirect_url'])) {
+        if ($this->settings->pci_mode === 'redirect' && isset($orderData['redirect_url'])) {
             $request['RedirectURL'] = $orderData['redirect_url'];
         }
 
@@ -200,7 +202,7 @@ class PaymentService
      */
     protected function getMaximumPayments(float $amount): int
     {
-        return Config::get('sumit-payment.installments.max_payments', 12);
+        return $this->settings->max_installments;
     }
 
     /**
@@ -208,11 +210,11 @@ class PaymentService
      */
     protected function getDocumentLanguage(): string
     {
-        if (Config::get('sumit-payment.documents.auto_language', true)) {
+        if ($this->settings->document_auto_language) {
             return app()->getLocale();
         }
         
-        return Config::get('sumit-payment.documents.default_language', 'he');
+        return $this->settings->document_default_language;
     }
 
     /**
@@ -222,12 +224,12 @@ class PaymentService
     {
         $authorizeAmount = $orderAmount;
         
-        $addedPercent = Config::get('sumit-payment.payment.authorize_added_percent', 0);
+        $addedPercent = $this->settings->authorize_added_percent;
         if ($addedPercent > 0) {
             $authorizeAmount = $authorizeAmount * (1 + $addedPercent / 100);
         }
 
-        $minimumAddition = Config::get('sumit-payment.payment.authorize_minimum_addition', 0);
+        $minimumAddition = $this->settings->authorize_minimum_addition;
         if ($minimumAddition > 0 && ($authorizeAmount - $orderAmount) < $minimumAddition) {
             $authorizeAmount = $orderAmount + $minimumAddition;
         }
@@ -299,7 +301,7 @@ class PaymentService
             return $errors;
         }
 
-        $pciMode = Config::get('sumit-payment.payment.pci_mode');
+        $pciMode = $this->settings->pci_mode;
 
         if ($pciMode === 'yes') {
             // Validate card details

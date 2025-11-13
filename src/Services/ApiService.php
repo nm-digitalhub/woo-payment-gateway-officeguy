@@ -5,19 +5,17 @@ namespace NmDigitalHub\SumitPayment\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
+use NmDigitalHub\SumitPayment\Settings\SumitPaymentSettings;
 
 class ApiService
 {
     protected Client $client;
-    protected string $environment;
-    protected int $timeout;
+    protected SumitPaymentSettings $settings;
 
-    public function __construct()
+    public function __construct(SumitPaymentSettings $settings)
     {
         $this->client = new Client();
-        $this->environment = Config::get('sumit-payment.environment', 'www');
-        $this->timeout = Config::get('sumit-payment.api.timeout', 180);
+        $this->settings = $settings;
     }
 
     /**
@@ -25,11 +23,11 @@ class ApiService
      */
     public function getUrl(string $path): string
     {
-        if ($this->environment === 'dev') {
-            return Config::get('sumit-payment.api.dev_url') . $path;
+        if ($this->settings->environment === 'dev') {
+            return $this->settings->api_dev_url . $path;
         }
         
-        return Config::get('sumit-payment.api.base_url') . $path;
+        return $this->settings->api_base_url . $path;
     }
 
     /**
@@ -56,7 +54,7 @@ class ApiService
         // Log request (sanitized)
         $this->logRequest($request, $url);
 
-        $sendClientIP = $sendClientIP ?? Config::get('sumit-payment.payment.send_client_ip', true);
+        $sendClientIP = $sendClientIP ?? $this->settings->send_client_ip;
 
         $headers = [
             'Content-Type' => 'application/json',
@@ -72,8 +70,8 @@ class ApiService
             $response = $this->client->post($url, [
                 'json' => $request,
                 'headers' => $headers,
-                'timeout' => $this->timeout,
-                'verify' => Config::get('sumit-payment.api.ssl_verify', true),
+                'timeout' => $this->settings->api_timeout,
+                'verify' => $this->settings->api_ssl_verify,
             ]);
 
             $body = json_decode($response->getBody()->getContents(), true);
@@ -167,16 +165,14 @@ class ApiService
      */
     public function writeToLog(string $message, string $level = 'debug'): void
     {
-        if (!Config::get('sumit-payment.logging.enabled', true)) {
+        if (!$this->settings->logging_enabled) {
             return;
         }
 
-        $logLevel = Config::get('sumit-payment.logging.level', 'debug');
-        
         // Only log if the message level is at or above configured level
         $levels = ['debug' => 0, 'info' => 1, 'warning' => 2, 'error' => 3];
         
-        if (($levels[$level] ?? 0) >= ($levels[$logLevel] ?? 0)) {
+        if (($levels[$level] ?? 0) >= ($levels[$this->settings->logging_level] ?? 0)) {
             Log::channel('single')->log($level, "[SUMIT] {$message}");
         }
     }
