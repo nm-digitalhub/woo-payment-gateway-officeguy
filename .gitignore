@@ -1,0 +1,19 @@
+# macOS metadata
+__MACOSX
+.DS_Store
+
+# Archive files
+*.zip
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# WordPress
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+wp-content/backup-db/
