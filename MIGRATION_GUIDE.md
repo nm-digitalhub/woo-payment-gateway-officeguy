@@ -1,8 +1,41 @@
-# Migration Guide: Filament v3 to v4 & Spatie Settings Integration
+# Migration Guide: Filament v4 & Plugin Architecture
 
 ## Overview
 
-This document provides a comprehensive guide for the migration to Filament v4 and integration of Spatie Laravel Settings in the WooCommerce Payment Gateway admin layer.
+This document provides a comprehensive guide for the Filament v4 integration and proper plugin architecture of the WooCommerce Payment Gateway admin layer.
+
+## ⚠️ IMPORTANT ARCHITECTURE CHANGE
+
+**This package is now a PLUGIN, not a separate panel!**
+
+### What This Means:
+
+❌ **Before (WRONG):** The package created a separate admin panel at `/admin/payment` with its own routing, middleware, and navigation.
+
+✅ **After (CORRECT):** The package is a Filament plugin that integrates seamlessly into your existing admin panel.
+
+### Quick Start:
+
+Register the plugin in your existing admin panel:
+
+```php
+// app/Providers/Filament/AdminPanelProvider.php
+use NmDigitalhub\WooPaymentGatewayAdmin\PaymentPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->id('admin')
+        ->path('admin')
+        ->plugin(PaymentPlugin::make()) // ✅ Add this line
+        ->discoverResources(...)
+        ->discoverPages(...);
+}
+```
+
+That's it! The payment gateway resources will now appear in your admin panel's navigation.
+
+---
 
 ## What Changed
 
@@ -78,20 +111,46 @@ class PaymentService {
 
 ## Filament v4 Migration Details
 
-### Panel Configuration
+### Plugin Registration (Not a Panel Provider!)
 
-**New in v4:**
+**Important:** This package provides a **Plugin**, not a separate panel. It must be registered in your existing admin panel.
+
+**Correct Usage:**
 ```php
-// app/Providers/PaymentPanelProvider.php
+// app/Providers/Filament/AdminPanelProvider.php
+use NmDigitalhub\WooPaymentGatewayAdmin\PaymentPlugin;
+
 public function panel(Panel $panel): Panel
 {
     return $panel
-        ->id('payment')
-        ->path('admin/payment')
+        ->id('admin')
+        ->path('admin')
+        ->plugin(PaymentPlugin::make()) // ✅ Register as a plugin
         ->discoverResources(...)
-        ->discoverPages(...)
-        ->middleware([...]);
+        ->discoverPages(...);
 }
+```
+
+**What the Plugin Does:**
+The `PaymentPlugin` automatically registers:
+- Payment gateway resources (TransactionResource, PaymentTokenResource)
+- Payment settings pages (ManagePaymentSettings)
+- Payment widgets (if any)
+
+These integrate seamlessly into your existing admin panel, using the same:
+- Navigation menu
+- Routing (under `/admin/*`)
+- Middleware
+- Authentication
+- Theme and colors
+
+**Incorrect Usage (❌ Don't do this):**
+```php
+// ❌ This is WRONG - creates a separate panel
+use NmDigitalhub\WooPaymentGatewayAdmin\Providers\PaymentPanelProvider;
+
+// Don't extend PanelProvider
+// Don't configure ->id('payment') or ->path('admin/payment')
 ```
 
 ### Resource Structure
@@ -387,12 +446,32 @@ return [
 
 ### config/app.php
 
+**Important:** The package now uses `PaymentServiceProvider` (not `PaymentPanelProvider`):
+
 ```php
 return [
     'providers' => [
-        App\Providers\PaymentPanelProvider::class,
+        // This is auto-discovered via composer.json
+        NmDigitalhub\WooPaymentGatewayAdmin\Providers\PaymentServiceProvider::class,
     ],
 ];
+```
+
+**Note:** You don't need to manually add this if using Laravel's package auto-discovery.
+
+**To use the plugin, register it in your admin panel:**
+
+```php
+// app/Providers/Filament/AdminPanelProvider.php
+use NmDigitalhub\WooPaymentGatewayAdmin\PaymentPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->id('admin')
+        ->plugin(PaymentPlugin::make())
+        // ... rest of configuration
+}
 ```
 
 ## Database Schema
@@ -427,7 +506,54 @@ CREATE TABLE `settings` (
 
 ## Breaking Changes
 
-### 1. No More Filament v3
+### 1. Plugin Architecture Change (IMPORTANT!)
+
+**Before (❌ Separate Panel - WRONG):**
+The package was incorrectly configured as a `PanelProvider`, creating a separate admin panel:
+```php
+// This created a separate panel at /admin/payment
+class PaymentPanelProvider extends PanelProvider
+{
+    public function panel(Panel $panel): Panel
+    {
+        return $panel->plugin(PaymentPlugin::make());
+    }
+}
+```
+
+**After (✅ Plugin Integration - CORRECT):**
+The package is now a proper Filament plugin that integrates into your existing admin panel:
+```php
+// Register in your existing admin panel
+// app/Providers/Filament/AdminPanelProvider.php
+use NmDigitalhub\WooPaymentGatewayAdmin\PaymentPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->id('admin')
+        ->path('admin')
+        ->plugin(PaymentPlugin::make()) // ✅ Plugin registration
+        ->discoverResources(...)
+        ->discoverPages(...);
+}
+```
+
+**What Changed:**
+- ❌ Removed: `PaymentPanelProvider` (created separate panel)
+- ✅ Added: `PaymentServiceProvider` (standard Laravel service provider)
+- ✅ Changed: Plugin ID from `payment` to `woo-payment-gateway-admin`
+- ✅ Changed: Resources now integrate into existing admin panel's routing
+- ✅ Changed: No separate `/admin/payment` path - everything under `/admin/*`
+- ✅ Changed: Uses parent panel's middleware and authentication
+
+**Migration Steps:**
+1. Remove any references to `PaymentPanelProvider` from your app
+2. Register `PaymentPlugin::make()` in your existing admin panel provider
+3. Update routes: `/admin/payment/*` → `/admin/*`
+4. Update documentation and internal references
+
+### 2. No More Filament v3
 
 If you were using Filament v3, you must update:
 - Resource `form()` and `table()` methods
