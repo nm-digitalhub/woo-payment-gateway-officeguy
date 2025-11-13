@@ -37,26 +37,35 @@ The payment configuration is managed through a centralized, type-safe settings l
 
 A complete standalone admin interface for managing the payment gateway, implemented as a Filament v4 Plugin following best practices:
 
+- **Admin Panel** (`src/Providers/AdminPanelProvider.php`)
+  - Main admin panel accessible at `/admin`
+  - Registers the PaymentPlugin
+  - Auto-discovers resources, pages, and widgets
+  - Configured with amber color scheme
+  
 - **Plugin Architecture** (`src/PaymentPlugin.php`)
   - Implements `Filament\Contracts\Plugin` interface
   - Clean separation of concerns
   - Follows Filament v4 plugin design patterns
-  - Registered via `PaymentPlugin::make()` factory method
+  - Registered to the admin panel via `PaymentPlugin::make()`
   - See: [Filament Plugin Documentation](https://filamentphp.com/docs/4.x/plugins/getting-started)
 
 - **Settings Management** (`src/Filament/Pages/ManagePaymentSettings.php`)
+  - Available at `/admin/manage-payment-settings`
   - Configure API credentials
   - Toggle sandbox mode
   - Manage token settings
   - Set webhook URLs
   - All changes persist to database immediately
 
-- **Transaction Management** (Planned - awaiting Filament compatibility fix)
+- **Transaction Management** (`src/Filament/Resources/TransactionResource.php`)
+  - Available at `/admin/transactions`
   - View and manage all payment transactions
   - Filter by status (pending, completed, failed, refunded)
   - Search and sort capabilities
 
-- **Payment Token Management** (Planned - awaiting Filament compatibility fix)
+- **Payment Token Management** (`src/Filament/Resources/PaymentTokenResource.php`)
+  - Available at `/admin/payment-tokens`
   - Manage stored payment methods
   - View card details (last 4 digits, expiry date)
   - Set default payment methods
@@ -98,7 +107,7 @@ composer require nm-digitalhub/woo-payment-gateway-admin
 
 2. **Publish configuration and migrations:**
 ```bash
-php artisan vendor:publish --provider="NmDigitalhub\WooPaymentGatewayAdmin\Providers\PaymentPanelProvider"
+php artisan vendor:publish --provider="NmDigitalhub\WooPaymentGatewayAdmin\Providers\AdminPanelProvider"
 ```
 
 3. **Run migrations:**
@@ -157,7 +166,7 @@ php artisan serve
 
 8. **Access the admin panel:**
 ```
-http://localhost:8000/admin/payment
+http://localhost:8000/admin
 ```
 
 ### WordPress/WooCommerce Integration (Optional)
@@ -201,7 +210,7 @@ CACHE_DRIVER=database
 
 Unlike traditional config files, payment settings are stored in the database and managed through the Filament admin interface:
 
-1. Navigate to `/admin/payment/settings`
+1. Navigate to `/admin/manage-payment-settings`
 2. Update API credentials, environment, token settings
 3. Click "Save"
 4. Changes are immediately available to all services
@@ -239,7 +248,7 @@ class MyController
 
 ### Managing Settings via Admin
 
-1. Navigate to `/admin/payment/settings`
+1. Navigate to `/admin/manage-payment-settings`
 2. Update API credentials
 3. Configure environment settings
 4. Save changes (persists to database immediately)

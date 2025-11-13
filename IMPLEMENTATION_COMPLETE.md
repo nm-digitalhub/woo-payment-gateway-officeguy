@@ -63,13 +63,15 @@ class PaymentSettings extends Settings
 
 ### 3. Filament v4 Admin Panel ✅
 
-**Panel Provider** (`app/Providers/PaymentPanelProvider.php`):
+**Panel Provider** (`src/Providers/AdminPanelProvider.php`):
 - Registered in `bootstrap/app.php`
-- Panel accessible at `/admin/payment`
+- Main admin panel accessible at `/admin`
 - Amber color scheme
 - Authentication middleware configured
+- Registers PaymentPlugin via `->plugin(PaymentPlugin::make())`
 
-**Settings Page** (`app/Filament/Pages/ManagePaymentSettings.php`):
+**Settings Page** (`src/Filament/Pages/ManagePaymentSettings.php`):
+- Accessible at `/admin/manage-payment-settings`
 - Converted from SettingsPage (v3) to Page (v4)
 - Database persistence via Spatie Settings
 - Organized sections: API Credentials, Environment, Tokens
@@ -282,7 +284,7 @@ php artisan migrate
 php artisan serve
 
 # 7. Access admin panel
-# http://localhost:8000/admin/payment
+# http://localhost:8000/admin
 ```
 
 ### Create Admin User (Optional)
@@ -322,7 +324,7 @@ class CustomService
 
 ### Update Settings via Admin UI
 
-1. Navigate to `http://localhost:8000/admin/payment/settings`
+1. Navigate to `http://localhost:8000/admin/manage-payment-settings`
 2. Update fields (API Key, Secret Key, Environment, etc.)
 3. Click "Save"
 4. Settings immediately available to all services
@@ -441,10 +443,11 @@ IMPLEMENTATION_COMPLETE.md
 
 ### Modified (7 files)
 ```
-app/Filament/Pages/ManagePaymentSettings.php (converted to Page class)
-app/Filament/Resources/TransactionResource.php (connected to model)
-app/Filament/Resources/PaymentTokenResource.php (connected to model)
-app/Providers/PaymentPanelProvider.php (updated for v4)
+src/Filament/Pages/ManagePaymentSettings.php (converted to Page class)
+src/Filament/Resources/TransactionResource.php (connected to model)
+src/Filament/Resources/PaymentTokenResource.php (connected to model)
+src/Providers/AdminPanelProvider.php (main admin panel provider)
+src/PaymentPlugin.php (updated to work as plugin, not panel configurator)
 config/app.php (removed manual providers, Laravel 11 auto-discovery)
 README.md (comprehensive standalone setup guide)
 .gitignore (added .env, logs)
