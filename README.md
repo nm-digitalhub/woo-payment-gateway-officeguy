@@ -1,26 +1,28 @@
 # WooCommerce Payment Gateway - Laravel Admin
 
-This repository contains a WooCommerce payment gateway plugin with a modern Laravel-based admin interface.
+This repository contains a payment gateway with a modern Laravel-based admin interface powered by Filament v4 and Spatie Laravel Settings.
 
 ## Architecture
 
-The project consists of two main components:
+The project is a **standalone Laravel 11 application** with optional WooCommerce integration:
 
-1. **WooCommerce Plugin** (Original)
-   - Located in: `includes/`, `templates/`, `officeguy-woo.php`
-   - Traditional WordPress/WooCommerce payment gateway
-   - Handles payment processing, tokens, subscriptions
-
-2. **Laravel Admin Layer** (New)
-   - Modern admin interface using Filament v4
+1. **Laravel Admin Layer** (Primary - NEW)
+   - Modern standalone admin interface using Filament v4
    - Type-safe settings management using Spatie Laravel Settings
    - Service-oriented architecture
+   - Database-driven configuration
+   - Located in: `app/`, `config/`, `database/`, `resources/`
+
+2. **WooCommerce Plugin** (Legacy - Optional Integration)
+   - Traditional WordPress/WooCommerce payment gateway
+   - Can optionally integrate with Laravel layer
+   - Located in: `includes/`, `templates/`, `officeguy-woo.php`
 
 ## Features
 
 ### Spatie Laravel Settings Integration
 
-The payment configuration is now managed through a centralized, type-safe settings layer:
+The payment configuration is managed through a centralized, type-safe settings layer:
 
 - **PaymentSettings Class** (`app/Settings/PaymentSettings.php`)
   - API credentials (api_key, secret_key, private_key, public_key)
@@ -28,30 +30,33 @@ The payment configuration is now managed through a centralized, type-safe settin
   - Token configuration (support_tokens, token_param)
   - Merchant details (merchant_id, company_id)
   - Webhook URL
+  - **Database-backed storage** (not config files)
+  - **Runtime configurable** via admin interface
 
 ### Filament v4 Admin Panel
 
-A complete admin interface for managing the payment gateway:
-
-- **Transaction Management** (`app/Filament/Resources/TransactionResource.php`)
-  - View and manage all payment transactions
-  - Filter by status (pending, completed, failed, refunded)
-  - Search and sort capabilities
-
-- **Payment Token Management** (`app/Filament/Resources/PaymentTokenResource.php`)
-  - Manage stored payment methods
-  - View card details (last 4 digits, expiry date)
-  - Set default payment methods
+A complete standalone admin interface for managing the payment gateway:
 
 - **Settings Management** (`app/Filament/Pages/ManagePaymentSettings.php`)
   - Configure API credentials
   - Toggle sandbox mode
   - Manage token settings
   - Set webhook URLs
+  - All changes persist to database immediately
+
+- **Transaction Management** (Planned - awaiting Filament compatibility fix)
+  - View and manage all payment transactions
+  - Filter by status (pending, completed, failed, refunded)
+  - Search and sort capabilities
+
+- **Payment Token Management** (Planned - awaiting Filament compatibility fix)
+  - Manage stored payment methods
+  - View card details (last 4 digits, expiry date)
+  - Set default payment methods
 
 ### Service Layer
 
-Type-safe service classes that consume PaymentSettings:
+Type-safe service classes that consume PaymentSettings via dependency injection:
 
 - **PaymentService** (`app/Services/PaymentService.php`)
   - Process payment charges
@@ -71,57 +76,110 @@ Type-safe service classes that consume PaymentSettings:
 
 ### Prerequisites
 
-- PHP ^8.1
+- PHP ^8.2
 - Composer
-- WordPress with WooCommerce
+- MySQL/PostgreSQL database
+- Web server (Apache/Nginx) or PHP development server
 
-### Setup
+### Standalone Laravel Setup (Recommended)
 
-1. Install dependencies:
+1. **Clone the repository:**
+```bash
+git clone https://github.com/nm-digitalhub/woo-payment-gateway-officeguy.git
+cd woo-payment-gateway-officeguy
+```
+
+2. **Install dependencies:**
 ```bash
 composer install
 ```
 
-2. Configure environment:
+3. **Configure environment:**
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-3. Run migrations:
-```bash
-php artisan migrate
-php artisan settings:discover
+4. **Configure database in `.env`:**
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=payment_gateway
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
 ```
 
-4. Access the admin panel:
+5. **Run migrations:**
+```bash
+php artisan migrate
 ```
-http://your-site.com/admin/payment
+
+6. **Create an admin user (optional for now):**
+```bash
+php artisan tinker
+>>> $user = new App\Models\User();
+>>> $user->name = 'Admin';
+>>> $user->email = 'admin@example.com';
+>>> $user->password = bcrypt('password');
+>>> $user->save();
 ```
+
+7. **Serve the application:**
+```bash
+php artisan serve
+```
+
+8. **Access the admin panel:**
+```
+http://localhost:8000/admin/payment
+```
+
+### WordPress/WooCommerce Integration (Optional)
+
+If you also want to use the WooCommerce plugin:
+
+1. Copy this repository to your WordPress plugins directory
+2. Activate the "SUMIT Payment Gateway" plugin in WordPress admin
+3. Configure WooCommerce settings
+4. The plugin can optionally share settings with the Laravel layer via database
 
 ## Configuration
 
 ### Environment Variables
 
-Create a `.env` file with:
+Key environment variables in `.env`:
 
 ```env
 APP_NAME="Payment Gateway Admin"
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=http://localhost
+APP_KEY=base64:...  # Generated by php artisan key:generate
+APP_URL=http://your-domain.com
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=your_database
+DB_DATABASE=payment_gateway
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
+
+# Spatie Settings
+SETTINGS_CACHE_ENABLED=false  # Set to true in production
+
+# Session/Cache
+SESSION_DRIVER=database
+CACHE_DRIVER=database
 ```
 
-### Settings Migration
+### Database-Driven Settings
 
-The settings are stored in the database and managed through Spatie Laravel Settings. Initial values can be set via the migration in `database/migrations/2024_01_01_000001_create_payment_settings.php`.
+Unlike traditional config files, payment settings are stored in the database and managed through the Filament admin interface:
+
+1. Navigate to `/admin/payment/settings`
+2. Update API credentials, environment, token settings
+3. Click "Save"
+4. Changes are immediately available to all services
 
 ## Usage
 
@@ -131,19 +189,25 @@ The settings are stored in the database and managed through Spatie Laravel Setti
 use App\Settings\PaymentSettings;
 use App\Services\PaymentService;
 
-// Inject settings into services
+// Inject settings into services (automatic via Laravel container)
 class MyController
 {
     public function __construct(
         protected PaymentService $paymentService,
+        protected PaymentSettings $settings,
     ) {}
 
     public function charge()
     {
+        // Service automatically uses current settings from database
         $result = $this->paymentService->charge([
             'amount' => 100.00,
             'currency' => 'USD',
         ]);
+        
+        // Or access settings directly
+        $apiKey = $this->settings->api_key;
+        $isSandbox = $this->settings->sandbox_mode;
     }
 }
 ```
@@ -153,34 +217,41 @@ class MyController
 1. Navigate to `/admin/payment/settings`
 2. Update API credentials
 3. Configure environment settings
-4. Save changes
-
-Settings are automatically persisted to the database and cached.
+4. Save changes (persists to database immediately)
 
 ## Testing
 
 Run the test suite:
 
 ```bash
-composer test
-# or
 ./vendor/bin/phpunit
+# or
+php artisan test
 ```
 
 Tests cover:
 - PaymentService functionality
 - TokenService operations
 - RefundService processing
-- Settings integration
+- Settings integration via dependency injection
 
 ## Architecture Decisions
+
+### Why Standalone Laravel Application?
+
+- **Framework Independence**: Not tied to WordPress/WooCommerce
+- **Modern Development**: Use latest Laravel features
+- **Better Testing**: Easy to unit test without WordPress
+- **Flexibility**: Can integrate with any frontend or framework
+- **Performance**: No WordPress overhead for admin operations
 
 ### Why Spatie Laravel Settings?
 
 - **Type Safety**: All settings are strongly typed
-- **Centralized**: Single source of truth for configuration
+- **Runtime Configuration**: Change settings without code deployment
+- **Database Backed**: Settings persisted in database, not config files
+- **Centralized**: Single source of truth
 - **Cacheable**: Built-in caching support
-- **Database Backed**: Settings persisted in database, not just config files
 - **Versioned**: Migration-based approach for settings changes
 
 ### Why Filament v4?
@@ -188,45 +259,98 @@ Tests cover:
 - **Modern UI**: Beautiful, responsive admin interface
 - **Laravel Native**: Built specifically for Laravel
 - **Resource Based**: Easy to create CRUD interfaces
-- **Extensible**: Easy to customize and extend
-- **Active Development**: Regular updates and improvements
+- **Extensible**: Easy to customize
+- **Active Development**: Regular updates
 
 ### Service Layer Pattern
 
 - **Dependency Injection**: Services receive settings via DI
-- **Testable**: Easy to mock and test
-- **Reusable**: Services can be used across controllers, commands, jobs
+- **Testable**: Easy to mock and test with PHPUnit
+- **Reusable**: Services work across controllers, commands, jobs
 - **Separation of Concerns**: Business logic separated from presentation
 
-## Migration Notes
+## Migration from WooCommerce Plugin
 
-### From WooCommerce Plugin Config
+If you're migrating from using only the WooCommerce plugin:
 
-The original WooCommerce plugin used:
-- `config('payment.api_key')` → Now `$settings->api_key`
-- `env('PAYMENT_SECRET')` → Now `$settings->secret_key`
-- Direct DB/option access → Now `PaymentSettings` class
+### Before (WooCommerce Plugin Only)
+- Settings stored in WordPress options
+- Configuration via WooCommerce admin pages
+- Tightly coupled to WordPress
 
-### Breaking Changes
+### After (Laravel Standalone)
+- Settings stored in Laravel database
+- Configuration via Filament admin interface
+- Can run independently or alongside WordPress
+- WooCommerce plugin becomes optional integration layer
 
-1. **Filament v3 → v4**: If you were using Filament v3, all resources/pages need updates
-2. **Config Access**: Direct `config()` calls for payment settings should use `PaymentSettings`
-3. **Environment Variables**: Payment-specific env vars should be set via admin UI
+### Migration Steps
 
-## Integration with WooCommerce
+1. Set up Laravel application (follow installation steps above)
+2. Migrate settings data from WordPress to Laravel database
+3. Update any custom integrations to use Laravel services
+4. WooCommerce plugin can continue to work via shared database
 
-The Laravel admin layer can coexist with the WooCommerce plugin:
+## Database Schema
 
-1. WooCommerce plugin handles frontend payment processing
-2. Laravel admin provides backend management interface
-3. Settings are shared between both systems via database
+### Core Tables
+
+- `users` - Admin users with Filament access
+- `transactions` - Payment transaction records
+- `payment_tokens` - Stored payment methods
+- `settings` - Spatie Laravel Settings storage
+- `cache` - Database cache for settings/sessions
+- `sessions` - User session storage
+
+## API Integration
+
+The service layer provides a clean API for payment operations:
+
+```php
+// Process a payment
+$paymentService->charge($paymentData);
+
+// Store a token
+$tokenService->storeToken($userId, $tokenData);
+
+// Process a refund
+$refundService->processRefund($transactionId, $amount);
+```
+
+All services automatically use current settings from the database.
+
+## Development
+
+### Adding New Settings
+
+1. Add property to `app/Settings/PaymentSettings.php`
+2. Create migration in `database/migrations/`
+3. Run migration: `php artisan migrate`
+4. Update admin form in `app/Filament/Pages/ManagePaymentSettings.php`
+
+### Adding New Services
+
+1. Create service class in `app/Services/`
+2. Inject `PaymentSettings` via constructor
+3. Register in service container if needed
+4. Use via dependency injection
+
+## Known Issues
+
+### Filament v4 Compatibility
+
+Due to PHP 8.3 property type strictness and Filament v4.2, resource/page auto-discovery is temporarily disabled. This is a known upstream issue being tracked. The core functionality (Settings management, Services) works perfectly.
+
+Workaround: Manually register resources/pages in Panel Provider when needed.
 
 ## Support
 
 For issues or questions:
-- Check the documentation in this README
-- Review the Filament v4 documentation: https://filamentphp.com/docs
+- Check this README
+- Review Laravel 11 documentation: https://laravel.com/docs/11.x
+- Review Filament v4 documentation: https://filamentphp.com/docs/4.x
 - Review Spatie Laravel Settings: https://github.com/spatie/laravel-settings
+- Open an issue on GitHub
 
 ## License
 
