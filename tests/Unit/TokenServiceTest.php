@@ -10,7 +10,7 @@ class TokenServiceTest extends TestCase
 {
     public function test_token_service_checks_support()
     {
-        $settings = $this->createMock(PaymentSettings::class);
+        $settings = $this->createStub(PaymentSettings::class);
         $settings->support_tokens = true;
         $settings->token_param = '5';
 
@@ -22,7 +22,7 @@ class TokenServiceTest extends TestCase
 
     public function test_token_service_stores_token()
     {
-        $settings = $this->createMock(PaymentSettings::class);
+        $settings = $this->createStub(PaymentSettings::class);
         $settings->support_tokens = true;
 
         $service = new TokenService($settings);
