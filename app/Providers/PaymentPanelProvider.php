@@ -16,7 +16,8 @@ class PaymentPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            // Temporarily disabled until models are created
+            // TODO: Re-enable after fixing Filament v4 property type compatibility
+            // See: https://github.com/filamentphp/filament/discussions/...
             // ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             // ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([])

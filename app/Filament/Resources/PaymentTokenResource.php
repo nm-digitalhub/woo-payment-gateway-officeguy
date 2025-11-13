@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentTokenResource\Pages;
+use App\Models\PaymentToken;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,7 +12,7 @@ use Filament\Tables\Table;
 
 class PaymentTokenResource extends Resource
 {
-    protected static $model = null; // Would be linked to a PaymentToken model
+    protected static ?string $model = PaymentToken::class;
     protected static $navigationIcon = 'heroicon-o-key';
     protected static $navigationLabel = 'Payment Tokens';
 
