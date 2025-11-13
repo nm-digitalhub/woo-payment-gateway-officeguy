@@ -2,6 +2,7 @@
     "name": "nm-digitalhub/woo-payment-gateway-admin",
     "description": "Laravel admin interface for WooCommerce Payment Gateway",
     "type": "library",
+    "license": "GPL-2.0-or-later",
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.0|^12.0",
