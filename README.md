@@ -33,16 +33,18 @@ The payment configuration is managed through a centralized, type-safe settings l
   - **Database-backed storage** (not config files)
   - **Runtime configurable** via admin interface
 
-### Filament v4 Admin Panel
+### Filament v4 Plugin Integration
 
-A complete standalone admin interface for managing the payment gateway, implemented as a Filament v4 Plugin following best practices:
+This package provides a **Filament v4 Plugin** that integrates into your existing admin panel:
 
 - **Plugin Architecture** (`src/PaymentPlugin.php`)
   - Implements `Filament\Contracts\Plugin` interface
-  - Clean separation of concerns
+  - Integrates seamlessly into existing admin panels
   - Follows Filament v4 plugin design patterns
   - Registered via `PaymentPlugin::make()` factory method
   - See: [Filament Plugin Documentation](https://filamentphp.com/docs/4.x/plugins/getting-started)
+
+**Important:** This is a **plugin**, not a standalone panel. It must be registered in your application's existing admin panel.
 
 - **Settings Management** (`src/Filament/Pages/ManagePaymentSettings.php`)
   - Configure API credentials
@@ -51,12 +53,12 @@ A complete standalone admin interface for managing the payment gateway, implemen
   - Set webhook URLs
   - All changes persist to database immediately
 
-- **Transaction Management** (Planned - awaiting Filament compatibility fix)
+- **Transaction Management**
   - View and manage all payment transactions
   - Filter by status (pending, completed, failed, refunded)
   - Search and sort capabilities
 
-- **Payment Token Management** (Planned - awaiting Filament compatibility fix)
+- **Payment Token Management**
   - Manage stored payment methods
   - View card details (last 4 digits, expiry date)
   - Set default payment methods
@@ -96,15 +98,36 @@ Type-safe service classes that consume PaymentSettings via dependency injection:
 composer require nm-digitalhub/woo-payment-gateway-admin
 ```
 
-2. **Publish configuration and migrations:**
-```bash
-php artisan vendor:publish --provider="NmDigitalhub\WooPaymentGatewayAdmin\Providers\PaymentPanelProvider"
+2. **Register the plugin in your admin panel:**
+
+Edit your `app/Providers/Filament/AdminPanelProvider.php`:
+
+```php
+use NmDigitalhub\WooPaymentGatewayAdmin\PaymentPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->id('admin')
+        ->path('admin')
+        ->plugin(PaymentPlugin::make()) // Register the payment gateway plugin
+        // ... other panel configuration
+        ->discoverResources(...)
+        ->discoverPages(...);
+}
 ```
 
-3. **Run migrations:**
+3. **Publish configuration and migrations (optional):**
+```bash
+php artisan vendor:publish --provider="NmDigitalhub\WooPaymentGatewayAdmin\Providers\PaymentServiceProvider"
+```
+
+4. **Run migrations:**
 ```bash
 php artisan migrate
 ```
+
+The plugin will now be integrated into your admin panel at `/admin`, with payment-related resources and pages accessible through the admin navigation.
 
 ### Development Setup (Clone Repository)
 
@@ -157,8 +180,10 @@ php artisan serve
 
 8. **Access the admin panel:**
 ```
-http://localhost:8000/admin/payment
+http://localhost:8000/admin
 ```
+
+The payment gateway resources will be available in your admin panel's navigation.
 
 ### WordPress/WooCommerce Integration (Optional)
 
@@ -201,7 +226,7 @@ CACHE_DRIVER=database
 
 Unlike traditional config files, payment settings are stored in the database and managed through the Filament admin interface:
 
-1. Navigate to `/admin/payment/settings`
+1. Navigate to the Payment Settings page in your admin panel
 2. Update API credentials, environment, token settings
 3. Click "Save"
 4. Changes are immediately available to all services
@@ -239,9 +264,9 @@ class MyController
 
 ### Managing Settings via Admin
 
-1. Navigate to `/admin/payment/settings`
-2. Update API credentials
-3. Configure environment settings
+1. Access your admin panel (e.g., `/admin`)
+2. Navigate to Payment Settings in the navigation menu
+3. Update API credentials and configuration
 4. Save changes (persists to database immediately)
 
 ## Testing

@@ -4,13 +4,27 @@ namespace NmDigitalhub\WooPaymentGatewayAdmin;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Filament\Support\Colors\Color;
 
 /**
  * PaymentPlugin - Filament v4 Plugin for Payment Gateway Admin Panel
  * 
  * This plugin provides a complete admin interface for managing payment gateway
  * settings, transactions, and payment tokens using Laravel Filament v4.
+ * 
+ * This is a true Filament plugin that integrates into an existing admin panel,
+ * NOT a separate panel provider. It should be registered in your existing
+ * admin panel like this:
+ * 
+ * ```php
+ * // app/Providers/Filament/AdminPanelProvider.php
+ * public function panel(Panel $panel): Panel
+ * {
+ *     return $panel
+ *         ->id('admin')
+ *         ->plugin(PaymentPlugin::make())
+ *         // ... other panel configuration
+ * }
+ * ```
  * 
  * Following Filament v4 plugin best practices as documented at:
  * https://filamentphp.com/docs/4.x/plugins/getting-started
@@ -25,14 +39,16 @@ class PaymentPlugin implements Plugin
      */
     public function getId(): string
     {
-        return 'payment';
+        return 'woo-payment-gateway-admin';
     }
 
     /**
      * Register the plugin with the Filament panel.
      * 
-     * This method is called during panel registration and is where we configure
-     * the panel with our resources, pages, widgets, and other settings.
+     * This method registers resources, pages, and widgets with the panel.
+     * Note: This is a plugin, not a panel provider, so we do NOT configure
+     * panel-level settings like id, path, colors, or middleware here.
+     * Those should be configured in the main admin panel.
      * 
      * @param Panel $panel
      * @return void
@@ -40,28 +56,21 @@ class PaymentPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel
-            ->id('payment')
-            ->path('admin/payment')
-            ->colors([
-                'primary' => Color::Amber,
-            ])
-            // TODO: Re-enable after fixing Filament v4 property type compatibility
-            // See: https://github.com/filamentphp/filament/discussions/...
-            // ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources')
-            // ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages')
-            ->pages([])
-            ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Widgets')
-            ->widgets([])
-            ->middleware([
-                \Illuminate\Cookie\Middleware\EncryptCookies::class,
-                \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-                \Illuminate\Session\Middleware\StartSession::class,
-                \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-                \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            ])
-            ->authMiddleware([
-                \Illuminate\Auth\Middleware\Authenticate::class,
-            ]);
+            // Register resources - discover all payment gateway resources
+            ->discoverResources(
+                in: __DIR__ . '/Filament/Resources',
+                for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Resources'
+            )
+            // Register pages - discover all payment gateway pages
+            ->discoverPages(
+                in: __DIR__ . '/Filament/Pages',
+                for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Pages'
+            )
+            // Register widgets - discover all payment gateway widgets
+            ->discoverWidgets(
+                in: __DIR__ . '/Filament/Widgets',
+                for: 'NmDigitalhub\\WooPaymentGatewayAdmin\\Filament\\Widgets'
+            );
     }
 
     /**
